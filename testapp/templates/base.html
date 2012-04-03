@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Flask-LazyViews test project</title>
+    <meta charset="utf-8">
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+    <h1>Flask-LazyViews test project</h1>
+    <div id="content">{% block content %}{% endblock %}</div>
+    {% block backlink %}
+    <ul>
+        <li><a href="{{ url_for("home") }}">&laquo; Back to home page</a></li>
+    </ul>
+    {% endblock %}
+    {% block extra_body %}{% endblock %}
+</body>
+
+</html>
