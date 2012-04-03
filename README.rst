@@ -65,8 +65,6 @@ For application
 For blueprint
 -------------
 
-.. note:: Blueprint name is ``test`` :)
-
 ``project/app.py``
 
 ::
