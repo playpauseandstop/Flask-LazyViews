@@ -16,6 +16,7 @@ from werkzeug.utils import ImportStringError
 
 from app import app
 from test import blueprint
+from views import page as page_view
 
 
 class TestFlaskLazyViews(unittest.TestCase):
@@ -174,6 +175,65 @@ class TestFlaskLazyViews(unittest.TestCase):
         self.assertRaises(ImportStringError,
                           test_app.get,
                           self.url('test.more_more_advanced'))
+
+    def test_init_app(self):
+        views = LazyViews()
+        self.assertRaises(AssertionError,
+                          views.add,
+                          '/default-page',
+                          'page',
+                          defaults={'page_id': 1},
+                          endpoint='default_page')
+        self.assertRaises(AssertionError,
+                          views.add_static,
+                          '/more-static/<path:filename>',
+                          endpoint='more_static')
+
+        views.init_app(app)
+        views.add('/default-page',
+                  page_view,
+                  defaults={'page_id': 1},
+                  endpoint='default_page')
+        views.add_static('/more-static/<path:filename>',
+                         endpoint='more_static')
+
+        self.assertIn('default_page', app.view_functions)
+        self.assertIn('more_static', app.view_functions)
+
+        test_app = app.test_client()
+        response = test_app.get(self.url('default_page'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Page #1', response.data)
+
+        favicon_url = self.url('more_static', filename='img/favicon.ico')
+        response = test_app.get(favicon_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_init_blueprint(self):
+        views = LazyViews()
+        self.assertRaises(AssertionError,
+                          views.add,
+                          '/more-advanced',
+                          'views.advanced',
+                          endpoint='more_advanced',
+                          methods=('GET', 'POST', 'PUT'))
+
+        views.init_blueprint(blueprint, blueprint.import_name)
+        views.add('/more-advanced',
+                  'views.advanced',
+                  endpoint='more_advanced',
+                  methods=('GET', 'POST', 'PUT'))
+
+        # Don't forget to re-register blueprint
+        app.blueprints.pop('test')
+        app.register_blueprint(blueprint, url_prefix='/test')
+
+        self.assertIn('test.more_advanced', app.view_functions)
+
+        test_app = app.test_client()
+        response = test_app.put(self.url('test.more_advanced'))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Advanced test page', response.data)
 
 
 if __name__ == '__main__':
