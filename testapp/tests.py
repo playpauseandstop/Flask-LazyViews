@@ -35,6 +35,7 @@ class TestFlaskLazyViews(unittest.TestCase):
         page = randint(1, 9999)
 
         home_url = self.url('home')
+        favicon_url = self.url('favicon')
         page_url = self.url('flatpage', page_id=page)
         first_page_url = self.url('flatpage', page_id=1)
 
@@ -42,11 +43,15 @@ class TestFlaskLazyViews(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn('<h1>Flask-LazyViews test project</h1>', response.data)
         self.assertIn('<a href="%s">' % first_page_url, response.data)
+        self.assertIn('<a href="%s">' % favicon_url, response.data)
 
         response = self.app.get(page_url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('Page #%d' % page, response.data)
         self.assertIn('<a href="%s">' % home_url, response.data)
+
+        response = self.app.get(favicon_url)
+        self.assertEqual(response.status_code, 200)
 
     def test_blueprint(self):
         home_url = self.url('home')
