@@ -153,6 +153,16 @@ the project's `GitHub issues
 ChangeLog
 =========
 
+0.2
+---
+
++ Implement ``init_app`` and ``init_blueprint`` methods for configuring
+  ``LazyViews`` instance outside main application module or for multiple
+  applications.
++ Add ``add_static`` shortcut method for adding custom URL rules for serving
+  static files.
++ Add ability to register real view functions with ``LazyViews`` instance.
+
 0.1
 ---
 
