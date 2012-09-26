@@ -34,6 +34,14 @@ class LazyViews(object):
                LazyView(self.build_import_name(mixed))
         self.instance.add_url_rule(url_rule, view_func=view, **options)
 
+    def add_error(self, code, mixed, **options):
+        """
+        Add error handler to Flask application or blueprint.
+        """
+        view = mixed if callable(mixed) else \
+               LazyView(self.build_import_name(mixed))
+        self.instance.errorhandler(404, **options)(view)
+
     def add_static(self, url_rule, **options):
         """
         Add URL rule for serving static files to Flask app or blueprint.
