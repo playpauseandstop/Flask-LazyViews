@@ -14,7 +14,7 @@ readme.close()
 
 setup(
     name='Flask-LazyViews',
-    version='0.2',
+    version='0.3',
     description='Registering url routes for Flask app and blueprints in ' \
                 'lazy way.',
     long_description=README,
