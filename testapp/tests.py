@@ -26,6 +26,8 @@ class TestFlaskLazyViews(unittest.TestCase):
         self.app = app.test_client()
 
     def tearDown(self):
+        if hasattr(self, 'old_DEBUG'):
+            app.config['DEBUG'] = self.old_DEBUG
         app.config['TESTING'] = False
 
     def url(self, *args, **kwargs):
@@ -175,6 +177,14 @@ class TestFlaskLazyViews(unittest.TestCase):
         self.assertRaises(ImportStringError,
                           test_app.get,
                           self.url('test.more_more_advanced'))
+
+    def test_error_handling(self):
+        self.old_DEBUG = app.debug
+        app.debug = False
+
+        response = self.app.get('/does-not-exist.exe')
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('<h2>Error 404: Page Not Found</h2>', response.data)
 
     def test_init_app(self):
         views = LazyViews()

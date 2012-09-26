@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+{% block content %}
+
+    <h2>{% if code == 404 %}Error 404: Page Not Found{% else %}Error {{ error }}{% endif %}</h2>
+
+{% endblock %}

@@ -16,6 +16,7 @@ app = Flask(__name__)
 views = LazyViews(app)
 views.add('/', 'views.home')
 views.add('/page/<int:page_id>', 'views.page', endpoint='flatpage')
+views.add_error(404, 'views.error')
 views.add_static('/favicon.ico',
                  defaults={'filename': 'img/favicon.ico'},
                  endpoint='favicon')
