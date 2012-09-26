@@ -143,6 +143,27 @@ Be careful with ``import_prefix`` value if you used ``__name__`` as Flask
 application name or blueprint ``import_name``. Setting relative path could
 cause server errors.
 
+Other methods
+=============
+
+add_error
+---------
+
+Add error handler to Flask application or blueprint, e.g.::
+
+    views = LazyViews(app, 'views')
+    views.add_error(404, 'error')
+    views.add_error(500, server_error_view)
+
+add_static
+----------
+
+Add custom URLs for serving static files. It useful when you want handle some
+static files outside ``static_url``, e.g.::
+
+    views = LazyViews(app)
+    views.add_static('/favicon.ico', defaults={'filename': 'img/favicon.ico'})
+
 Bugs, feature requests?
 =======================
 
@@ -152,6 +173,12 @@ the project's `GitHub issues
 
 ChangeLog
 =========
+
+0.3
+---
+
++ Implement ``add_error`` shortcut method for adding custom error handling for
+  Flask application or blueprint.
 
 0.2
 ---
