@@ -11,8 +11,7 @@ IP ?= 0.0.0.0
 PORT ?= 4354
 
 bootstrap:
-	virtualenv --distribute $(env)
-	$(pip) install -r requirements.txt
+	bootstrapper
 
 server:
 	$(python) $(project)/app.py $(IP):$(PORT)
