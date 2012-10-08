@@ -1,51 +1,31 @@
-#!/usr/bin/env python
-
 import os
 import sys
 
 from flask import Flask
+from flask.ext.admin import Admin
 from flask.ext.lazyviews import LazyViews
+from flask.ext.script import Manager
 
 from testapp.test import blueprint as test_blueprint
 
 
-# Init Flask application
+# Init Flask application and necessary extensions
 app = Flask(__name__)
+admin = Admin(app)
+manager = Manager(app)
 
-# Add url routes to application
+# Add url rules to application
 views = LazyViews(app)
 views.add('/', 'views.home')
+views.add('/error', 'views.server_error')
 views.add('/page/<int:page_id>', 'views.page', endpoint='flatpage')
+views.add('/page/<int:page_id>/cls', 'views.PageView', endpoint='flatpage_cls')
+views.add_admin('admin.AdminView', endpoint='app_admin', name='App View')
 views.add_error(404, 'views.error')
+views.add_error(500, 'views.error')
 views.add_static('/favicon.ico',
                  defaults={'filename': 'img/favicon.ico'},
                  endpoint='favicon')
 
 # Register test blueprint
 app.register_blueprint(test_blueprint, url_prefix='/test')
-
-
-if __name__ == '__main__':
-    host = '0.0.0.0'
-    port = 5000
-
-    if len(sys.argv) == 2:
-        mixed = sys.argv[1]
-
-        try:
-            host, port = mixed.split(':')
-        except ValueError:
-            port = mixed
-    elif len(sys.argv) == 3:
-        host, port = sys.argv[1:]
-
-    try:
-        port = int(port)
-    except (TypeError, ValueError):
-        print >> sys.stderr, 'Please, use proper digit value to the ' \
-                             '``port`` argument.\nCannot convert {0!r} to ' \
-                             'integer.'.format(port)
-        sys.exit(1)
-
-    app.debug = bool(int(os.environ.get('DEBUG', 1)))
-    app.run(host=host, port=port)

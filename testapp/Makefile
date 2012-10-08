@@ -1,20 +1,29 @@
-.PHONY: bootstrap server test
+.PHONY: bootstrap manage server test
 
-# Project and environment settings
-env = env
-project = .
-pip = $(env)/bin/pip
-python = PYTHONPATH=.. $(env)/bin/python
+ENV = env
+PROJECT = .
 
-# Server settings
-IP ?= 0.0.0.0
+PYTHON = PYTHONPATH=.. $(ENV)/bin/python
+
+DEBUG ?= 0
+HOST ?= 0.0.0.0
 PORT ?= 4354
+TEST_ARGS ?= -fv
 
 bootstrap:
 	bootstrapper
 
+manage:
+	$(PYTHON) $(PROJECT)/manage.py $(COMMAND)
+
+pep8:
+	pep8 --count --statistics ../flask_lazyviews/
+
 server:
-	$(python) $(project)/app.py $(IP):$(PORT)
+	COMMAND="runserver -t $(HOST) -p $(PORT)" $(MAKE) manage
+
+shell:
+	COMMAND=shell $(MAKE) manage
 
 test:
-	$(python) $(project)/tests.py
+	$(PYTHON) $(ENV)/bin/unit2.py discover $(TEST_ARGS) -t $(PROJECT)

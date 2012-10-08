@@ -1,2 +1,5 @@
-Flask>=0.8
-unittest2
+Flask==0.9
+Flask-Admin==1.0.2
+Flask-Script==0.5.1
+Flask-Testing==0.4
+unittest2==0.5.1

@@ -5,8 +5,11 @@
 
     <ul>
         <li><a href="{{ url_for("flatpage", page_id=1) }}">Page #1</a></li>
+        <li><a href="{{ url_for("flatpage_cls", page_id=2) }}">Page #2</a></li>
+        <li><a href="{{ url_for("admin.index") }}">Admin page</a></li>
         <li><a href="{{ url_for("favicon") }}">Favicon</a></li>
         <li><a href="/does_not_exists.exe">404 page</a></li>
+        <li><a href="{{ url_for("server_error") }}">500 page</a></li>
         <li><a href="{{ url_for("test.test") }}">Test page</a></li>
         <li><a href="{{ url_for("test.advanced") }}?q={{ query }}">Advanced test page</a></li>
     </ul>
