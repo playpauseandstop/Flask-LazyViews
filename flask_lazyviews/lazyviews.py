@@ -1,3 +1,6 @@
+from flask import current_app
+from flask.views import View
+
 from .utils import LazyView
 
 
@@ -30,17 +33,43 @@ class LazyViews(object):
         wrapped with ``LazyView`` class.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
-        view = mixed if callable(mixed) else \
-               LazyView(self.build_import_name(mixed))
-        self.instance.add_url_rule(url_rule, view_func=view, **options)
+        options['view_func'] = self.get_view(mixed)
+        self.instance.add_url_rule(url_rule, **options)
 
-    def add_error(self, code, mixed, **options):
+    def add_admin(self, mixed, *args, **kwargs):
+        """
+        Add admin view if "Flask-Admin" extension added to application.
+        """
+        assert self.instance, 'LazyViews instance is not properly initialized.'
+
+        if hasattr(self.instance, 'blueprints'):
+            app = self.instance
+        else:
+            app = current_app
+
+        try:
+            extensions = app.extensions
+        except RuntimeError:
+            return
+
+        if not 'admin' in extensions:
+            raise ValueError('Looks like, Flask-Admin extension not added '
+                             'to current application, {0!r}'.format(app))
+
+        admin = extensions['admin']
+        view = self.get_view(mixed)
+
+        if isinstance(view, LazyView):
+            view = view(*args, **kwargs)
+
+        admin.add_view(view)
+
+    def add_error(self, code_or_exception, mixed):
         """
         Add error handler to Flask application or blueprint.
         """
-        view = mixed if callable(mixed) else \
-               LazyView(self.build_import_name(mixed))
-        self.instance.errorhandler(404, **options)(view)
+        assert self.instance, 'LazyViews instance is not properly initialized.'
+        self.instance.errorhandler(code_or_exception)(self.get_view(mixed))
 
     def add_static(self, url_rule, **options):
         """
@@ -55,6 +84,15 @@ class LazyViews(object):
         """
         not_empty = lambda data: filter(lambda item: item, data)
         return '.'.join(not_empty((self.import_prefix, import_name)))
+
+    def get_view(self, mixed):
+        """
+        If ``mixed`` value is callable it's our view, else wrap it with
+        ``LazyView`` instance.
+        """
+        if callable(mixed) or not isinstance(mixed, basestring):
+            return mixed
+        return LazyView(self.build_import_name(mixed))
 
     def init_app(self, app, import_prefix=None):
         """
