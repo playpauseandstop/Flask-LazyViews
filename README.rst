@@ -148,6 +148,18 @@ cause server errors.
 Other methods
 =============
 
+add_admin
+---------
+
+Add admin view if `Flask-Admin <http://pypi.python.org/pypi/Flask-Admin>`_
+extension is added to Flask application.
+
+.. note:: This method only works for Flask applications, not blueprints.
+
+    admin = Admin(app)
+    views = LazyViews(app, 'views')
+    views.add_admin('PageAdmin', name='Page Admin')
+
 add_error
 ---------
 
@@ -175,6 +187,13 @@ the project's `GitHub issues
 
 ChangeLog
 =========
+
+0.4
+---
+
++ Add support of adding admin views to Flask applications via ``add_admin``
+  method.
++ Configure Travis CI support.
 
 0.3
 ---
