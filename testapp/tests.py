@@ -274,6 +274,11 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                   'views.advanced',
                   endpoint='more_advanced',
                   methods=('GET', 'POST', 'PUT'))
+        self.assertRaises(
+            ValueError,
+            views.add_admin,
+            AdminView(name='Admin View')
+        )
 
         # Don't forget to re-register blueprint
         self.app.blueprints.pop('test')
