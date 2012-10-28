@@ -2,6 +2,8 @@
 Flask-LazyViews
 ===============
 
+.. image:: https://secure.travis-ci.org/playpauseandstop/Flask-LazyViews.png
+
 Registering url routes for your `Flask <http://flask.pocoo.org/>`_ app or
 blueprint in lazy way :)
 

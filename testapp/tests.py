@@ -21,7 +21,7 @@ from test import blueprint
 from views import PageView, page as page_view
 
 
-class TestFlaskLazyViews(TestCase):
+class TestFlaskLazyViews(TestCase, unittest.TestCase):
 
     TESTING = True
 
