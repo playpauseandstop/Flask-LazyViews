@@ -156,6 +156,8 @@ extension is added to Flask application.
 
 .. note:: This method only works for Flask applications, not blueprints.
 
+::
+
     admin = Admin(app)
     views = LazyViews(app, 'views')
     views.add_admin('PageAdmin', name='Page Admin')
