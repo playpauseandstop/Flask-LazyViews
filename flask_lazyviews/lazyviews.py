@@ -38,25 +38,21 @@ class LazyViews(object):
 
     def add_admin(self, mixed, *args, **kwargs):
         """
-        Add admin view if "Flask-Admin" extension added to application.
+        Add admin view if "Flask-Admin" extension added to application. This
+        method only works for Flask applications, not blueprints.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
 
-        if hasattr(self.instance, 'blueprints'):
-            app = self.instance
-        else:
-            app = current_app
+        if not hasattr(self.instance, 'blueprints'):
+            raise ValueError('Cannot add admin view to blueprint.')
 
-        try:
-            extensions = app.extensions
-        except RuntimeError:
-            return
+        app = self.instance
 
-        if not 'admin' in extensions:
+        if not 'admin' in app.extensions:
             raise ValueError('Looks like, Flask-Admin extension not added '
                              'to current application, {0!r}'.format(app))
 
-        admin = extensions['admin']
+        admin = app.extensions['admin']
         view = self.get_view(mixed)
 
         if isinstance(view, LazyView):
