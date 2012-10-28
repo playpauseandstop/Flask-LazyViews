@@ -8,5 +8,5 @@ env:
  - FLASK_VERSION=0.9
 install:
  - "pip install -r testapp/requirements.txt --use-mirrors"
- - "pip install -I Flaks==$FLASK_VERSION"
+ - "pip install -I Flask==$FLASK_VERSION"
 script: "PYTHONPATH=. unit2 discover -s testapp/"
