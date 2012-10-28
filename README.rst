@@ -12,7 +12,7 @@ blueprint in lazy way :)
 Requirements
 ============
 
-* `Python <http://www.python.org/>`_ 2.6 or higher
+* `Python <http://www.python.org/>`_ 2.6 or 2.7
 * `Flask`_ 0.8 or higher
 
 Installation

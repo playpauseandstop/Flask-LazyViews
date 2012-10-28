@@ -2,5 +2,11 @@ language: python
 python:
  - "2.6"
  - "2.7"
-install: "pip install -r testapp/requirements.txt --use-mirrors"
+ - "pypy"
+env:
+ - FLASK_VERSION=0.8
+ - FLASK_VERSION=0.9
+install:
+ - "pip install -r testapp/requirements.txt --use-mirrors"
+ - "pip install -I Flaks==$FLASK_VERSION"
 script: "PYTHONPATH=. unit2 discover -s testapp/"
