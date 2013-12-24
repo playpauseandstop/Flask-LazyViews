@@ -17,6 +17,7 @@ class LazyView(object):
         self.__module__, self.__name__ = name.rsplit('.', 1)
         self.import_name = name
         self.args, self.kwargs = args, kwargs
+        self.__doc__ = import_string(self.import_name).__doc__
 
     def __call__(self, *args, **kwargs):
         """
