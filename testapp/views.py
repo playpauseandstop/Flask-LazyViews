@@ -17,6 +17,9 @@ def error(e):
 
 
 def home():
+    """
+    Home page.
+    """
     query = u''.join([choice(letters + digits) for i in range(16)])
     return render_template('home.html', query=query)
 

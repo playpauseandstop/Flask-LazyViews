@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-import unittest
-
-# Simple manipulation to use ``unittest2`` if current Python version is
-# less than 2.7
-if not hasattr(unittest.TestCase, 'assertIn'):
+try:
     import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from random import choice, randint
 from string import letters
@@ -16,8 +14,8 @@ from flask.ext.testing import TestCase
 from werkzeug.utils import ImportStringError
 
 from admin import AdminView
-from app import app
-from test import blueprint
+from app import init_app
+from test.blueprint import init_blueprint
 from views import PageView, page as page_view
 
 
@@ -27,18 +25,24 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
 
     def tearDown(self):
         for attr in dir(self):
-            if not attr.startswith('old_'):
+            if not attr.startswith('original_'):
                 continue
-            name = attr.replace('old_', '')
+            name = attr.replace('original_', '')
             self.app.config[name] = getattr(self, attr)
 
     def create_app(self):
+        app, _, _ = init_app()
+
         for attr in dir(self):
             if not attr.isupper() or attr.startswith('_'):
                 continue
-            setattr(self, 'old_{0}'.format(attr), app.config.get(attr))
+            setattr(self, 'original_{0}'.format(attr), app.config.get(attr))
             app.config[attr] = getattr(self, attr)
+
         return app
+
+    def get_blueprint_name(self):
+        return 'test_{0}'.format(''.join([choice(letters) for i in range(4)]))
 
     def url(self, *args, **kwargs):
         return url_for(*args, **kwargs)
@@ -113,7 +117,7 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                   defaults={'page_id': 1},
                   endpoint='default_page')
 
-        self.assertIn('default_page', app.view_functions)
+        self.assertIn('default_page', self.app.view_functions)
 
         client = self.app.test_client()
         response = client.get(self.url('default_page'))
@@ -121,20 +125,21 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.assertIn('Page #1', response.data)
 
     def test_custom_config_blueprint(self):
+        name = self.get_blueprint_name()
+        blueprint = init_blueprint(name)
+
         views = LazyViews(blueprint, import_prefix=blueprint.import_name)
         views.add('/more-advanced',
                   'views.advanced',
                   endpoint='more_advanced',
                   methods=('GET', 'POST', 'PUT'))
 
-        # Don't forget to re-register blueprint
-        self.app.blueprints.pop('test')
         self.app.register_blueprint(blueprint, url_prefix='/test')
-
-        self.assertIn('test.more_advanced', app.view_functions)
+        self.assertIn('{0}.more_advanced'.format(name),
+                      self.app.view_functions)
 
         client = self.app.test_client()
-        response = client.put(self.url('test.more_advanced'))
+        response = client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
         self.assertIn('Advanced test page', response.data)
 
@@ -145,58 +150,62 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                   defaults={'page_id': 1},
                   endpoint='default_page')
 
-        self.assertIn('default_page', app.view_functions)
+        self.assertIn('default_page', self.app.view_functions)
 
         client = self.app.test_client()
         self.assertRaises(ImportStringError,
                           client.get,
                           self.url('default_page'))
 
-        views = LazyViews(app, import_prefix='testapp.views')
+        views = LazyViews(self.app, import_prefix='testapp.views')
         views.add('/another-default-page',
                   'does_not_exist',
                   endpoint='another_default_page')
 
-        self.assertIn('another_default_page', app.view_functions)
+        self.assertIn('another_default_page', self.app.view_functions)
 
-        client = app.test_client()
+        client = self.app.test_client()
         self.assertRaises(ImportStringError,
                           client.get,
                           self.url('another_default_page'))
 
     def test_error_config_blueprint(self):
+        name = self.get_blueprint_name()
+        blueprint = init_blueprint(name)
+
         views = LazyViews(blueprint, import_prefix='weird.path')
         views.add('/more-advanced',
                   'views.advanced',
                   endpoint='more_advanced')
 
-        app.blueprints.pop('test')
-        app.register_blueprint(blueprint, url_prefix='/test')
+        self.app.register_blueprint(blueprint, url_prefix='/test')
+        self.assertIn('{0}.more_advanced'.format(name),
+                      self.app.view_functions)
 
-        self.assertIn('test.more_advanced', app.view_functions)
-
-        test_app = app.test_client()
+        test_app = self.app.test_client()
         self.assertRaises(ImportStringError,
                           test_app.get,
-                          self.url('test.more_advanced'))
+                          self.url('{0}.more_advanced'.format(name)))
+
+        name = self.get_blueprint_name()
+        blueprint = init_blueprint(name)
 
         views = LazyViews(blueprint, blueprint.import_name)
         views.add('/more-more-advanced',
                   'views.does_not_exist',
                   endpoint='more_more_advanced')
 
-        app.blueprints.pop('test')
-        app.register_blueprint(blueprint, url_prefix='/test')
+        self.app.register_blueprint(blueprint, url_prefix='/test')
+        self.assertIn('{0}.more_more_advanced'.format(name),
+                      self.app.view_functions)
 
-        self.assertIn('test.more_more_advanced', app.view_functions)
-
-        test_app = app.test_client()
+        test_app = self.app.test_client()
         self.assertRaises(ImportStringError,
                           test_app.get,
-                          self.url('test.more_more_advanced'))
+                          self.url('{0}.more_more_advanced'.format(name)))
 
     def test_error_handling(self):
-        self.old_DEBUG = self.app.debug
+        self.original_DEBUG = self.app.debug
         self.app.debug = False
         client = self.app.test_client()
 
@@ -269,6 +278,9 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                           endpoint='more_advanced',
                           methods=('GET', 'POST', 'PUT'))
 
+        name = self.get_blueprint_name()
+        blueprint = init_blueprint(name)
+
         views.init_blueprint(blueprint, import_prefix=blueprint.import_name)
         views.add('/more-advanced',
                   'views.advanced',
@@ -281,12 +293,11 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         )
 
         # Don't forget to re-register blueprint
-        self.app.blueprints.pop('test')
         self.app.register_blueprint(blueprint, url_prefix='/test')
-
-        self.assertIn('test.more_advanced', app.view_functions)
+        self.assertIn('{0}.more_advanced'.format(name),
+                      self.app.view_functions)
 
         client = self.app.test_client()
-        response = client.put(self.url('test.more_advanced'))
+        response = client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
         self.assertIn('Advanced test page', response.data)

@@ -2,11 +2,13 @@ language: python
 python:
  - "2.6"
  - "2.7"
+ - "3.3"
 env:
  - FLASK_VERSION=0.8
  - FLASK_VERSION=0.9
+ - FLASK_VERSION=0.10.1
 install:
- - "pip install -r testapp/requirements.txt --use-mirrors"
+ - "pip install -r testapp/requirements.txt"
  - "pip install -I Flask==$FLASK_VERSION"
  - "pip install -e ."
 script: "unit2 discover -s testapp/"
