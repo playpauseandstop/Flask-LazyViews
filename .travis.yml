@@ -11,4 +11,4 @@ install:
  - "pip install -r testapp/requirements.txt"
  - "pip install -I Flask==$FLASK_VERSION"
  - "pip install -e ."
-script: "unit2 discover -s testapp/"
+script: "cd testapp/ && nosetests -w ./"
