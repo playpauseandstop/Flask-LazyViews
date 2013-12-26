@@ -1,3 +1,12 @@
+"""
+=====================
+flask_lazyviews.utils
+=====================
+
+Proxy class for import view function from string.
+
+"""
+
 from flask.views import View
 from werkzeug.utils import cached_property, import_string
 
@@ -14,9 +23,18 @@ class LazyView(object):
         Initialize ``LazyView`` instance for view that would be imported from
         ``name`` path.
         """
-        self.__module__, self.__name__ = name.rsplit('.', 1)
         self.import_name = name
         self.args, self.kwargs = args, kwargs
+        self.__module__, self.__name__ = name.rsplit('.', 1)
+        self.__repr_cache = None
+
+        # Add documentation and repr methods to current instance from view
+        # function if view function is able to import
+        try:
+            self.__doc__ = self.view.__doc__
+            self.__repr_cache = repr(self.view)
+        except ImportError:
+            pass
 
     def __call__(self, *args, **kwargs):
         """
@@ -27,6 +45,23 @@ class LazyView(object):
         else:
             view = self.view
         return view(*args, **kwargs)
+
+    def __eq__(self, other):
+        """
+        Check that two lazy view instances has equal view or not.
+        """
+        try:
+            return self.view == other.view
+        except (AttributeError, ImportError):
+            return False
+
+    def __repr__(self):
+        """
+        Show custom repr message if view function is exists.
+        """
+        return (self.__repr_cache
+                if self.__repr_cache is not None
+                else super(LazyView, self).__repr__())
 
     @cached_property
     def view(self):

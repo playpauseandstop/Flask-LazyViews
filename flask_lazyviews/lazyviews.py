@@ -1,7 +1,16 @@
-from flask import current_app
-from flask.views import View
+"""
+=========================
+flask_lazyviews.lazyviews
+=========================
+
+Class for adding lazy views to Flask application or blueprint.
+
+"""
 
 from .utils import LazyView
+
+
+__all__ = ('LazyViews', )
 
 
 class LazyViews(object):
@@ -48,11 +57,12 @@ class LazyViews(object):
 
         app = self.instance
 
-        if not 'admin' in app.extensions:
+        if 'admin' not in app.extensions:
             raise ValueError('Looks like, Flask-Admin extension not added '
                              'to current application, {0!r}'.format(app))
 
         admin = app.extensions['admin']
+        admin = admin[0] if isinstance(admin, list) else admin
         view = self.get_view(mixed)
 
         if isinstance(view, LazyView):
@@ -96,13 +106,13 @@ class LazyViews(object):
         instance and import prefix if any.
         """
         if import_prefix and import_prefix.startswith('.'):
-            import_name = \
-                app.import_name if app.import_name != '__main__' else ''
+            import_name = (app.import_name
+                           if app.import_name != '__main__'
+                           else '')
 
-            assert import_name, 'You should properly configure import name ' \
-                                'for {0!r} instance or edit import prefix to '\
-                                'not start with ".".'.\
-                                format(mixed.__class__.__name__)
+            assert import_name, ('You should properly configure import name '
+                                 'for {0!r} instance or edit import prefix to '
+                                 'not start with ".".'.format(app))
 
             import_prefix = import_name + import_prefix
 
