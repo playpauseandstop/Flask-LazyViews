@@ -17,8 +17,7 @@ class LazyViews(object):
     """
     Main instance for adding *lazy* views to Flask application or blueprint.
     """
-    import_prefix = None
-    instance = None
+    __slots__ = ('import_prefix', 'instance')
 
     def __init__(self, instance=None, import_prefix=None):
         """
@@ -30,6 +29,9 @@ class LazyViews(object):
         configure ``LazyViews`` instance somewhere outside your ``app.py`` or
         for multiple applications.
         """
+        self.instance = None
+        self.import_prefix = None
+
         if instance:
             self.init_app(instance, import_prefix)
 
