@@ -12,7 +12,7 @@ blueprint in lazy way :)
 Requirements
 ============
 
-* `Python <http://www.python.org/>`_ 2.6 or 2.7
+* `Python <http://www.python.org/>`_ 2.6, 2.7 or 3.3+
 * `Flask`_ 0.8 or higher
 
 Installation
@@ -189,6 +189,13 @@ the project's `GitHub issues
 
 ChangeLog
 =========
+
+0.5
+---
+
++ Python 3 support
++ Flask 0.10.1 support
++ Access view function documentation and repr while loading views via strings
 
 0.4
 ---
