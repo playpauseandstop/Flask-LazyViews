@@ -1,22 +1,24 @@
 #!/usr/bin/env python
 
 import os
+import re
 
-from distutils.core import setup
+from setuptools import setup
 
 
 DIRNAME = os.path.dirname(__file__)
+rel = lambda *parts: os.path.abspath(os.path.join(DIRNAME, *parts))
 
-readme = open(os.path.join(DIRNAME, 'README.rst'), 'r')
-README = readme.read()
-readme.close()
+README = open(rel('README.rst')).read()
+INIT_PY = open(rel('flask_lazyviews', '__init__.py')).read()
+VERSION = re.findall("__version__ = '([^']+)'", INIT_PY)[0]
 
 
 setup(
     name='Flask-LazyViews',
-    version='0.4',
-    description='Registering url routes for Flask app and blueprints in ' \
-                'lazy way.',
+    version=VERSION,
+    description='Registering url routes for Flask app and blueprints in lazy '
+                'way.',
     long_description=README,
     author='Igor Davydenko',
     author_email='playpauseandstop@gmail.com',
@@ -33,7 +35,10 @@ setup(
         'Environment :: Web Environment',
         'Operating System :: OS Independent',
         'Topic :: Utilities',
-        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'License :: OSI Approved :: BSD License',
