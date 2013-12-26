@@ -23,7 +23,9 @@ def init_app():
     views.add('/', 'views.home')
     views.add('/error', 'views.server_error')
     views.add('/page/<int:page_id>', 'views.page', endpoint='flatpage')
-    views.add('/page/<int:page_id>/cls', 'views.PageView', endpoint='flatpage_cls')
+    views.add('/page/<int:page_id>/cls',
+              'views.PageView',
+              endpoint='flatpage_cls')
     views.add_admin('admin.AdminView',
                     endpoint='app_admin',
                     name='App View')

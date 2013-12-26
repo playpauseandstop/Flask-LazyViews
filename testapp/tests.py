@@ -143,6 +143,14 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.assert200(response)
         self.assertIn('Advanced test page', response.data)
 
+    def test_doc_and_repr(self):
+        view_func = self.app.view_functions['home']
+        hex_repr = '{0:x}'.format(id(view_func.view))
+
+        self.assertEqual(view_func.__doc__, '\n    Home page.\n    ')
+        self.assertEqual(repr(view_func),
+                         '<function home at 0x0{0}>'.format(hex_repr.upper()))
+
     def test_error_config_app(self):
         views = LazyViews(self.app, import_prefix='weird.path')
         views.add('/default-page',
