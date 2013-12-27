@@ -9,3 +9,5 @@ MANIFEST
 build/
 dist/
 testapp/env/
+
+.coverage

@@ -41,5 +41,5 @@ shell:
 
 test:
 	$(NOSETESTS) --logging-clear-handlers $(TEST_ARGS) -w $(APP)/ \
-	--with-coverage --cover-branches --cover-package=$(PROJECT) \
+	--with-coverage --cover-branches --cover-package=../$(PROJECT)/ \
 	--cover-html --cover-html-dir=$(COVERAGE_DIR)

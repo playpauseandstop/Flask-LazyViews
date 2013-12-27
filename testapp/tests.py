@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+import platform
 
 try:
     from unittest2 import TestCase
@@ -166,9 +166,14 @@ class TestFlaskLazyViews(TestCase):
         view_func = self.app.view_functions['home']
         hex_repr = '{0:x}'.format(id(view_func.view))
 
+        if platform.system() == 'windows':
+            view_repr = '0x0{0}'.format(hex_repr.upper())
+        else:
+            view_repr = '0x{0}'.format(hex_repr)
+
         self.assertEqual(view_func.__doc__, '\n    Home page.\n    ')
-        self.assertEqual(repr(view_func),
-                         '<function home at 0x0{0}>'.format(hex_repr.upper()))
+        self.assertEqual(repr(view_func), 
+                         '<function home at {0}>'.format(view_repr))
 
     def test_error_config_app(self):
         views = LazyViews(self.app, import_prefix='weird.path')
