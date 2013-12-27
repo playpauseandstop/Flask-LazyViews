@@ -13,7 +13,7 @@ install:
   - pip install -I Flask==$FLASK_VERSION
   - if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi
 script:
-  - make -C testapp/ test
+  - PYTHONPATH=testapp/ nosetests -w testapp/
 matrix:
   allow_failures:
     - python: pypy
