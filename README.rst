@@ -193,7 +193,7 @@ ChangeLog
 0.5
 ---
 
-+ Python 3 support
++ Python 3 support (only for Flask 0.10+)
 + Flask 0.10.1 support
 + Access view function documentation and repr while loading views via strings
 

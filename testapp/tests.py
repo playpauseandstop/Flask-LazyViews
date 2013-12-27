@@ -1,16 +1,15 @@
 #!/usr/bin/env python
 
 try:
-    import unittest2 as unittest
+    from unittest2 import TestCase
 except ImportError:
-    import unittest
+    from unittest import TestCase
 
 from random import choice, randint
 from string import letters
 
 from flask import Blueprint, Flask, url_for
 from flask.ext.lazyviews import LazyViews
-from flask.ext.testing import TestCase
 from werkzeug.utils import ImportStringError
 
 from admin import AdminView
@@ -19,16 +18,38 @@ from test.blueprint import init_blueprint
 from views import PageView, page as page_view
 
 
-class TestFlaskLazyViews(TestCase, unittest.TestCase):
+class TestFlaskLazyViews(TestCase):
 
     TESTING = True
 
+    def setUp(self):
+        self.app, self._ctx = None, None
+
+        self.app = self.create_app()
+        self.client = self.app.test_client()
+
+        self._ctx = self.app.test_request_context()
+        self._ctx.push()
+
     def tearDown(self):
-        for attr in dir(self):
-            if not attr.startswith('original_'):
-                continue
-            name = attr.replace('original_', '')
-            self.app.config[name] = getattr(self, attr)
+        if self._ctx is not None:
+            self._ctx.pop()
+
+        if self.app is not None:
+            for attr in dir(self):
+                if not attr.startswith('original_'):
+                    continue
+                name = attr.replace('original_', '')
+                self.app.config[name] = getattr(self, attr)
+
+    def assert200(self, response):
+        self.assertStatus(response, 200)
+
+    def assert404(self, response):
+        self.assertStatus(response, 404)
+
+    def assertStatus(self, response, status_code):
+        self.assertEqual(response.status_code, status_code)
 
     def create_app(self):
         app, _, _ = init_app()
@@ -119,8 +140,7 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
 
         self.assertIn('default_page', self.app.view_functions)
 
-        client = self.app.test_client()
-        response = client.get(self.url('default_page'))
+        response = self.client.get(self.url('default_page'))
         self.assert200(response)
         self.assertIn('Page #1', response.data)
 
@@ -138,8 +158,7 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.assertIn('{0}.more_advanced'.format(name),
                       self.app.view_functions)
 
-        client = self.app.test_client()
-        response = client.put(self.url('{0}.more_advanced'.format(name)))
+        response = self.client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
         self.assertIn('Advanced test page', response.data)
 
@@ -159,10 +178,8 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                   endpoint='default_page')
 
         self.assertIn('default_page', self.app.view_functions)
-
-        client = self.app.test_client()
         self.assertRaises(ImportStringError,
-                          client.get,
+                          self.client.get,
                           self.url('default_page'))
 
         views = LazyViews(self.app, import_prefix='testapp.views')
@@ -172,9 +189,8 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
 
         self.assertIn('another_default_page', self.app.view_functions)
 
-        client = self.app.test_client()
         self.assertRaises(ImportStringError,
-                          client.get,
+                          self.client.get,
                           self.url('another_default_page'))
 
     def test_error_config_blueprint(self):
@@ -189,10 +205,8 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.app.register_blueprint(blueprint, url_prefix='/test')
         self.assertIn('{0}.more_advanced'.format(name),
                       self.app.view_functions)
-
-        test_app = self.app.test_client()
         self.assertRaises(ImportStringError,
-                          test_app.get,
+                          self.client.get,
                           self.url('{0}.more_advanced'.format(name)))
 
         name = self.get_blueprint_name()
@@ -206,10 +220,8 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.app.register_blueprint(blueprint, url_prefix='/test')
         self.assertIn('{0}.more_more_advanced'.format(name),
                       self.app.view_functions)
-
-        test_app = self.app.test_client()
         self.assertRaises(ImportStringError,
-                          test_app.get,
+                          self.client.get,
                           self.url('{0}.more_more_advanced'.format(name)))
 
     def test_error_handling(self):
@@ -260,21 +272,20 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
         self.assertIn('default_page', self.app.view_functions)
         self.assertIn('more_static', self.app.view_functions)
 
-        client = self.app.test_client()
-        response = client.get(self.url('default_page'))
+        response = self.client.get(self.url('default_page'))
         self.assert200(response)
         self.assertIn('Page #1', response.data)
 
-        response = client.get(self.url('advanced_page'))
+        response = self.client.get(self.url('advanced_page'))
         self.assert200(response)
         self.assertIn('Page #2', response.data)
 
-        response = client.get(self.url('admin.index'))
+        response = self.client.get(self.url('admin.index'))
         self.assert200(response)
         self.assertIn('Admin View', response.data)
 
         favicon_url = self.url('more_static', filename='img/favicon.ico')
-        response = client.get(favicon_url)
+        response = self.client.get(favicon_url)
         self.assert200(response)
 
     def test_init_blueprint(self):
@@ -294,18 +305,15 @@ class TestFlaskLazyViews(TestCase, unittest.TestCase):
                   'views.advanced',
                   endpoint='more_advanced',
                   methods=('GET', 'POST', 'PUT'))
-        self.assertRaises(
-            ValueError,
-            views.add_admin,
-            AdminView(name='Admin View')
-        )
+        self.assertRaises(ValueError,
+                          views.add_admin,
+                          AdminView(name='Admin View'))
 
         # Don't forget to re-register blueprint
         self.app.register_blueprint(blueprint, url_prefix='/test')
         self.assertIn('{0}.more_advanced'.format(name),
                       self.app.view_functions)
 
-        client = self.app.test_client()
-        response = client.put(self.url('{0}.more_advanced'.format(name)))
+        response = self.client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
         self.assertIn('Advanced test page', response.data)
