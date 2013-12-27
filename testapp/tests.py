@@ -48,6 +48,11 @@ class TestFlaskLazyViews(TestCase):
     def assert404(self, response):
         self.assertStatus(response, 404)
 
+    def assertContains(self, response, text):
+        if not hasattr(response, 'decoded'):
+            response.decoded = response.data.decode(response.charset)
+        self.assertIn(text, response.decoded)
+
     def assertStatus(self, response, status_code):
         self.assertEqual(response.status_code, status_code)
 
@@ -80,20 +85,20 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.get(home_url)
         self.assert200(response)
-        self.assertIn('<h1>Flask-LazyViews test project</h1>', response.data)
-        self.assertIn('<a href="{0}">'.format(first_page_url), response.data)
-        self.assertIn('<a href="{0}">'.format(second_page_url), response.data)
-        self.assertIn('<a href="{0}">'.format(admin_url), response.data)
-        self.assertIn('<a href="{0}">'.format(favicon_url), response.data)
+        self.assertContains(response, '<h1>Flask-LazyViews test project</h1>')
+        self.assertContains(response, '<a href="{0}">'.format(first_page_url))
+        self.assertContains(response, '<a href="{0}">'.format(second_page_url))
+        self.assertContains(response, '<a href="{0}">'.format(admin_url))
+        self.assertContains(response, '<a href="{0}">'.format(favicon_url))
 
         response = self.client.get(page_url)
         self.assert200(response)
-        self.assertIn('Page #{0:d}'.format(page), response.data)
-        self.assertIn('<a href="{0}">'.format(home_url), response.data)
+        self.assertContains(response, 'Page #{0:d}'.format(page))
+        self.assertContains(response, '<a href="{0}">'.format(home_url))
 
         response = self.client.get(admin_url)
         self.assert200(response)
-        self.assertIn('App View', response.data)
+        self.assertContains(response, 'App View')
 
         response = self.client.get(favicon_url)
         self.assert200(response)
@@ -105,31 +110,31 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.get(home_url)
         self.assert200(response)
-        self.assertIn('<a href="{0}">'.format(test_url), response.data)
-        self.assertIn('<a href="{0}?q='.format(advanced_url), response.data)
+        self.assertContains(response, '<a href="{0}">'.format(test_url))
+        self.assertContains(response, '<a href="{0}?q='.format(advanced_url))
 
         response = self.client.get(test_url)
         self.assert200(response)
-        self.assertIn('<h2>Test page</h2>', response.data)
-        self.assertIn(
-            '<a href="{0}">To advanced test page'.format(advanced_url),
-            response.data
+        self.assertContains(response, '<h2>Test page</h2>')
+        self.assertContains(
+            response,
+            '<a href="{0}">To advanced test page'.format(advanced_url)
         )
 
         number = str(randint(1, 9999))
 
         response = self.client.get('{0}?q={1}'.format(advanced_url, number))
         self.assert200(response)
-        self.assertIn('Advanced test page', response.data)
-        self.assertIn('$REQUEST', response.data)
-        self.assertIn(number, response.data)
-        self.assertIn('Make POST request', response.data)
+        self.assertContains(response, 'Advanced test page')
+        self.assertContains(response, '$REQUEST')
+        self.assertContains(response, number)
+        self.assertContains(response, 'Make POST request')
 
         text = ''.join([choice(letters) for i in range(16)])
 
         response = self.client.post(advanced_url, data={'text': text})
         self.assert200(response)
-        self.assertIn(text, response.data)
+        self.assertContains(response, text)
 
     def test_custom_config_app(self):
         views = LazyViews(self.app, import_prefix='testapp.views')
@@ -142,7 +147,7 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.get(self.url('default_page'))
         self.assert200(response)
-        self.assertIn('Page #1', response.data)
+        self.assertContains(response, 'Page #1')
 
     def test_custom_config_blueprint(self):
         name = self.get_blueprint_name()
@@ -160,7 +165,7 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
-        self.assertIn('Advanced test page', response.data)
+        self.assertContains(response, 'Advanced test page')
 
     def test_doc_and_repr(self):
         view_func = self.app.view_functions['home']
@@ -236,7 +241,7 @@ class TestFlaskLazyViews(TestCase):
 
         response = client.get('/does-not-exist.exe')
         self.assert404(response)
-        self.assertIn('<h2>Error 404: Page Not Found</h2>', response.data)
+        self.assertContains(response, '<h2>Error 404: Page Not Found</h2>')
 
     def test_init_app(self):
         self.app.blueprints.pop('app_admin')
@@ -279,15 +284,15 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.get(self.url('default_page'))
         self.assert200(response)
-        self.assertIn('Page #1', response.data)
+        self.assertContains(response, 'Page #1')
 
         response = self.client.get(self.url('advanced_page'))
         self.assert200(response)
-        self.assertIn('Page #2', response.data)
+        self.assertContains(response, 'Page #2')
 
         response = self.client.get(self.url('admin.index'))
         self.assert200(response)
-        self.assertIn('Admin View', response.data)
+        self.assertContains(response, 'Admin View')
 
         favicon_url = self.url('more_static', filename='img/favicon.ico')
         response = self.client.get(favicon_url)
@@ -321,4 +326,4 @@ class TestFlaskLazyViews(TestCase):
 
         response = self.client.put(self.url('{0}.more_advanced'.format(name)))
         self.assert200(response)
-        self.assertIn('Advanced test page', response.data)
+        self.assertContains(response, 'Advanced test page')
