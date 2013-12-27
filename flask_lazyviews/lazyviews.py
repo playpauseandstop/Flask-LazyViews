@@ -7,6 +7,8 @@ Class for adding lazy views to Flask application or blueprint.
 
 """
 
+from flask._compat import string_types
+
 from .utils import LazyView
 
 
@@ -98,7 +100,7 @@ class LazyViews(object):
         If ``mixed`` value is callable it's our view, else wrap it with
         ``LazyView`` instance.
         """
-        if callable(mixed) or not isinstance(mixed, basestring):
+        if callable(mixed) or not isinstance(mixed, string_types):
             return mixed
         return LazyView(self.build_import_name(mixed))
 
