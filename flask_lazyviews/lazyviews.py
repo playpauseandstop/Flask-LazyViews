@@ -7,12 +7,15 @@ Class for adding lazy views to Flask application or blueprint.
 
 """
 
-from flask._compat import string_types
+import sys
 
 from .utils import LazyView
 
 
 __all__ = ('LazyViews', )
+
+
+string_types = (str, unicode) if sys.version_info[0] < 3 else (str, )
 
 
 class LazyViews(object):

@@ -1,5 +1,5 @@
 from random import choice
-from string import digits, letters
+from string import ascii_letters as letters, digits
 
 from flask import render_template
 from flask.views import MethodView

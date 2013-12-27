@@ -166,7 +166,7 @@ class TestFlaskLazyViews(TestCase):
         view_func = self.app.view_functions['home']
         hex_repr = '{0:x}'.format(id(view_func.view))
 
-        if platform.system() == 'windows':
+        if platform.system() == 'Windows':
             view_repr = '0x0{0}'.format(hex_repr.upper())
         else:
             view_repr = '0x{0}'.format(hex_repr)
