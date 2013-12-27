@@ -6,7 +6,7 @@ except ImportError:
     from unittest import TestCase
 
 from random import choice, randint
-from string import letters
+from string import ascii_letters as letters
 
 from flask import Blueprint, Flask, url_for
 from flask.ext.lazyviews import LazyViews
@@ -172,7 +172,7 @@ class TestFlaskLazyViews(TestCase):
             view_repr = '0x{0}'.format(hex_repr)
 
         self.assertEqual(view_func.__doc__, '\n    Home page.\n    ')
-        self.assertEqual(repr(view_func), 
+        self.assertEqual(repr(view_func),
                          '<function home at {0}>'.format(view_repr))
 
     def test_error_config_app(self):
