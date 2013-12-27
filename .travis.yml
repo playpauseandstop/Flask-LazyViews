@@ -20,6 +20,6 @@ matrix:
     - python: pypy
   exclude:
     - python: 3.3
-      env: FLASK_VERSION==0.8
+      env: FLASK_VERSION=0.8
     - python: 3.3
-      env: FLASK_VERSION==0.9
+      env: FLASK_VERSION=0.9
