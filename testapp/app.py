@@ -4,9 +4,12 @@ import sys
 from flask import Flask
 from flask.ext.admin import Admin
 from flask.ext.lazyviews import LazyViews
-from flask.ext.script import Manager
+from flask.ext.sqlalchemy import SQLAlchemy
 
 from testapp.test.blueprint import blueprint as test_blueprint
+
+
+DUMMY = None
 
 
 def init_app():
@@ -15,12 +18,15 @@ def init_app():
     """
     # Init Flask application and necessary extensions
     app = Flask(__name__)
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+
     admin = Admin(app)
-    manager = Manager(app)
+    db = SQLAlchemy(app)
 
     # Add url rules to application
     views = LazyViews(app)
     views.add('/', 'views.home')
+    views.add('/db', 'views.database_page')
     views.add('/error', 'views.server_error')
     views.add('/page/<int:page_id>', 'views.page', endpoint='flatpage')
     views.add('/page/<int:page_id>/cls',
@@ -38,7 +44,7 @@ def init_app():
     # Register test blueprint
     app.register_blueprint(test_blueprint, url_prefix='/test')
 
-    return (app, admin, manager)
+    return (app, admin, db)
 
 
-app, admin, manager = init_app()
+(app, admin, db) = init_app()

@@ -57,7 +57,7 @@ class TestFlaskLazyViews(TestCase):
         self.assertEqual(response.status_code, status_code)
 
     def create_app(self):
-        app, _, _ = init_app()
+        (app, _, _) = init_app()
 
         for attr in dir(self):
             if not attr.isupper() or attr.startswith('_'):

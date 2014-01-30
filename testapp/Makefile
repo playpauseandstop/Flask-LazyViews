@@ -17,29 +17,36 @@ else
 endif
 
 COVERAGE_DIR = /tmp/$(PROJECT)-coverage
-HOST ?= 0.0.0.0
+SERVER_HOST ?= 0.0.0.0
 PORT ?= 4354
 TEST_ARGS ?=
 
 bootstrap:
 	bootstrapper -e $(ENV)
 
+clean:
+	find . -name "*.pyc" -delete
+
+distclean: clean
+	rm -rf $(ENV)/ ../build/ ../dist/ ../*.egg*/
+	rm -r MANIFEST
+
 list_updates:
 	$(PIP) list -lo
 
 manage:
-	$(PYTHON) $(PROJECT)/manage.py $(COMMAND)
+	$(PYTHON) ./manage.py $(COMMAND)
 
 pep8:
 	$(FLAKE8) ../$(PROJECT)/
 
 server:
-	COMMAND="runserver -t $(HOST) -p $(PORT)" $(MAKE) manage
+	COMMAND="runserver -t $(SERVER_HOST) -p $(PORT)" $(MAKE) manage
 
 shell:
 	COMMAND=shell $(MAKE) manage
 
-test:
+test: clean pep8
 	$(NOSETESTS) --logging-clear-handlers $(TEST_ARGS) -w $(APP)/ \
 	--with-coverage --cover-branches --cover-package=../$(PROJECT)/ \
 	--cover-html --cover-html-dir=$(COVERAGE_DIR)

@@ -1,8 +1,11 @@
-from random import choice
+from random import choice, randint
 from string import ascii_letters as letters, digits
 
 from flask import render_template
 from flask.views import MethodView
+from sqlalchemy.exc import OperationalError
+
+from models import Page
 
 
 class PageView(MethodView):
@@ -11,9 +14,22 @@ class PageView(MethodView):
         return page(page_id)
 
 
+def database_page(page_id=None):
+    page_id = randint(1, 1024)
+
+    try:
+        page = Page.query.get(page_id)
+    except OperationalError:
+        page = Page(id=page_id,
+                    title='Page #{0}'.format(page_id),
+                    text='Dummy content.')
+
+    return render_template('page.html', page=page.id)
+
+
 def error(e):
     code = e.code if hasattr(e, 'code') else 500
-    return render_template('error.html', code=code, error=e), code
+    return (render_template('error.html', code=code, error=e), code)
 
 
 def home():
@@ -30,4 +46,4 @@ def page(page_id):
 
 
 def server_error():
-    assert False, 'Hail to assertion error!'
+    assert False, 'Hail to assertion error! Dummy is {0!r}'.format(DUMMY)

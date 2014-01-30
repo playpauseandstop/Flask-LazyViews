@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from app import manager
+from flask.ext.script import Manager
+
+from app import app
 
 
 if __name__ == '__main__':
-    manager.run()
+    Manager(app).run()
