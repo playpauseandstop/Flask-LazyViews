@@ -26,15 +26,6 @@ class LazyView(object):
         self.import_name = name
         self.args, self.kwargs = args, kwargs
         self.__module__, self.__name__ = name.rsplit('.', 1)
-        self.__repr_cache = None
-
-        # Add documentation and repr methods to current instance from view
-        # function if view function is able to import
-        try:
-            self.__doc__ = self.view.__doc__
-            self.__repr_cache = repr(self.view)
-        except ImportError:
-            pass
 
     def __call__(self, *args, **kwargs):
         """
@@ -55,13 +46,26 @@ class LazyView(object):
         except (AttributeError, ImportError):
             return False
 
+    def __getattribute__(self, name):
+        """
+        Add documentation and repr methods to current instance from view
+        function if view function is able to import.
+        """
+        try:
+            if name == '__doc__':
+                return self.view.__doc__
+        except ImportError:
+            pass
+        return super(LazyView, self).__getattribute__(name)
+
     def __repr__(self):
         """
-        Show custom repr message if view function is exists.
+        Show custom repr message if view function exists.
         """
-        return (self.__repr_cache
-                if self.__repr_cache is not None
-                else super(LazyView, self).__repr__())
+        try:
+            return repr(self.view)
+        except ImportError:
+            return super(LazyView, self).__repr__()
 
     @cached_property
     def view(self):
