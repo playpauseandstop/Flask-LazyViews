@@ -2,7 +2,11 @@
 Flask-LazyViews
 ===============
 
-.. image:: https://secure.travis-ci.org/playpauseandstop/Flask-LazyViews.png
+.. image:: https://secure.travis-ci.org/playpauseandstop/Flask-LazyViews.png?branch=master
+    :target: https://travis-ci.org/playpauseandstop/Flask-LazyViews
+
+.. image:: https://pypip.in/v/Flask-LazyViews/badge.png
+    :target: https://pypi.python.org/pypi/Flask-LazyViews
 
 Registering url routes for your `Flask <http://flask.pocoo.org/>`_ app or
 blueprint in lazy way :)
@@ -190,28 +194,35 @@ the project's `GitHub issues
 ChangeLog
 =========
 
-0.5
----
+0.5.1 (Jan 31, 2014)
+--------------------
+
++ Fixes #3. Make ``LazyView`` proxy class lazy again. Fix circullar imports and
+  working outside application context
+
+0.5 (Dec 27, 2013)
+------------------
 
 + Python 3 support (only for Flask 0.10+)
-+ Flask 0.10.1 support
-+ Access view function documentation and repr while loading views via strings
++ Flask 0.10+ support
++ Fixes #2. Access view function documentation and repr while loading views via
+  strings
 
-0.4
----
+0.4 (Oct 28, 2012)
+------------------
 
 + Add support of adding admin views to Flask applications via ``add_admin``
   method.
 + Configure Travis CI support.
 
-0.3
----
+0.3 (Oct 4, 2012)
+-----------------
 
 + Implement ``add_error`` shortcut method for adding custom error handling for
   Flask application or blueprint.
 
-0.2
----
+0.2 (Sep 17, 2012)
+------------------
 
 + Implement ``init_app`` and ``init_blueprint`` methods for configuring
   ``LazyViews`` instance outside main application module or for multiple
@@ -220,7 +231,7 @@ ChangeLog
   static files.
 + Add ability to register real view functions with ``LazyViews`` instance.
 
-0.1
----
+0.1 (Apr 3, 2012)
+-----------------
 
 * Initial release.
