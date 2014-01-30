@@ -24,7 +24,7 @@ Installation
 
 ::
 
-    $ pip install Flask-LazyViews
+    # pip install Flask-LazyViews
 
 License
 =======
