@@ -20,7 +20,7 @@ endif
 
 COVERAGE_DIR = /tmp/$(PROJECT)-coverage
 SERVER_HOST ?= 0.0.0.0
-PORT ?= 4354
+PORT ?= 8303
 TEST_ARGS ?=
 
 bootstrap:
