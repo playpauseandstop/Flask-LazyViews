@@ -4,7 +4,7 @@ APP = .
 PROJECT = flask_lazyviews
 
 ENV ?= env
-VENV = $(shell echo `[ -z "$(VIRTUAL_ENV)" ] && python -c 'import sys; print(1 if hasattr(sys, "real_prefix") else "");' || :`)
+VENV = $(shell python -c 'import sys; print(1 if hasattr(sys, "real_prefix") else "");')
 
 ifneq ($(VENV),)
 	FLAKE8 = flake8
