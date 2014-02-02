@@ -15,7 +15,7 @@ from .utils import LazyView
 __all__ = ('LazyViews', )
 
 
-string_types = (str, unicode) if sys.version_info[0] < 3 else (str, )
+string_types = (str, unicode) if sys.version_info[0] < 3 else (str, )  # noqa
 
 
 class LazyViews(object):

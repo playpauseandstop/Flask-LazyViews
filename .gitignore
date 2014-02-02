@@ -9,5 +9,6 @@ MANIFEST
 build/
 dist/
 testapp/env/
+.tox/
 
 .coverage
