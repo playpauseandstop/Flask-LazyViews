@@ -31,7 +31,7 @@ clean:
 
 distclean: clean
 	rm -rf ../.tox/ ../build/ ../dist/ ../*.egg*/ $(ENV)/
-	rm -r ../MANIFEST .converage
+	rm -rf ../MANIFEST .coverage
 
 list_updates:
 	$(PIP) list -lo
