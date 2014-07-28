@@ -9,6 +9,10 @@ Class for adding lazy views to Flask application or blueprint.
 
 import sys
 
+from functools import partial
+
+from flask import render_template
+
 from .utils import LazyView
 
 
@@ -90,6 +94,22 @@ class LazyViews(object):
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
         self.add(url_rule, self.instance.send_static_file, **options)
+
+    def add_template(self, url_rule, template_name, **options):
+        """
+        Render template name with context for given URL rule.
+
+        Context should be a plain dict or callable. If callable its result
+        would be passed to ``render_template`` function.
+        """
+        assert self.instance, 'LazyViews instance is not properly initialized.'
+
+        def renderer(template_name, mixed):
+            context = mixed() if callable(mixed) else mixed or {}
+            return partial(render_template, template_name, **context)
+
+        view = renderer(template_name, options.pop('context', None))
+        self.add(url_rule, view, **options)
 
     def build_import_name(self, import_name):
         """
