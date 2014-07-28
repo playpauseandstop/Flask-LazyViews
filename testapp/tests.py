@@ -170,16 +170,15 @@ class TestFlaskLazyViews(TestCase):
 
     def test_doc_and_repr(self):
         view_func = self.app.view_functions['home']
-        hex_repr = '{0:x}'.format(id(view_func.view))
+        view_repr = repr(view_func)
 
+        hex_repr = '{0:x}'.format(id(view_func.view))
         if platform.system() == 'Windows':
-            view_repr = '0x0{0}'.format(hex_repr.upper())
-        else:
-            view_repr = '0x{0}'.format(hex_repr)
+            hex_repr = hex_repr.upper()
 
         self.assertEqual(view_func.__doc__, '\n    Home page.\n    ')
-        self.assertEqual(repr(view_func),
-                         '<function home at {0}>'.format(view_repr))
+        self.assertTrue(view_repr.startswith('<function home at 0x'))
+        self.assertTrue(view_repr.endswith('{0}>'.format(hex_repr)))
 
     def test_error_config_app(self):
         views = LazyViews(self.app, import_prefix='weird.path')
