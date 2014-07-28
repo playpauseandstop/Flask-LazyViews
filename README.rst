@@ -206,10 +206,10 @@ the project's `GitHub issues
 ChangeLog
 =========
 
-0.5.2 (Unreleased)
-------------------
+0.6 (Unreleased)
+----------------
 
-+ Added ability register template views as ``add_template`` method.
++ Added ability register template views via ``add_template`` method
 
 0.5.1 (Jan 31, 2014)
 --------------------
