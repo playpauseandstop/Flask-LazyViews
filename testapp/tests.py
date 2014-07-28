@@ -10,6 +10,7 @@ from string import ascii_letters as letters
 
 from flask import Blueprint, Flask, url_for
 from flask.ext.lazyviews import LazyViews
+from jinja2.filters import escape
 from werkzeug.utils import ImportStringError
 
 from admin import AdminView
@@ -297,6 +298,19 @@ class TestFlaskLazyViews(TestCase):
         favicon_url = self.url('more_static', filename='img/favicon.ico')
         response = self.client.get(favicon_url)
         self.assert200(response)
+
+        strong = lambda text: '<strong>{0}</strong>'.format(escape(text))
+        response = self.client.get(self.url('template'))
+        self.assert200(response)
+        self.assertContains(response, strong("'Test Text'"))
+
+        response = self.client.get(self.url('template_callable_context'))
+        self.assert200(response)
+        self.assertContains(response, strong("'Callable Test Text'"))
+
+        response = self.client.get(self.url('template_no_context'))
+        self.assert200(response)
+        self.assertContains(response, strong('Undefined'))
 
     def test_init_blueprint(self):
         views = LazyViews()

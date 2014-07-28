@@ -13,6 +13,9 @@
         <li><a href="{{ url_for("server_error") }}">500 page</a></li>
         <li><a href="{{ url_for("test.test") }}">Test page</a></li>
         <li><a href="{{ url_for("test.advanced") }}?q={{ query }}">Advanced test page</a></li>
+        <li><a href="{{ url_for("template") }}">Template page</a></li>
+        <li><a href="{{ url_for("template_callable_context") }}">Template page with callable context</a></li>
+        <li><a href="{{ url_for("template_no_context") }}">Template page without context</a></li>
     </ul>
 
 {% endblock %}

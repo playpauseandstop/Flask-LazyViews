@@ -18,9 +18,10 @@ else
 	PYTHON = $(ENV)/bin/python
 endif
 
-COVERAGE_DIR = /tmp/$(PROJECT)-coverage
 SERVER_HOST ?= 0.0.0.0
-PORT ?= 8303
+SERVER_PORT ?= 8303
+
+COVERAGE_DIR = /tmp/$(PROJECT)-coverage
 TEST_ARGS ?=
 
 bootstrap:
@@ -43,7 +44,7 @@ pep8:
 	$(FLAKE8) --statistics ../$(PROJECT)/
 
 server:
-	COMMAND="runserver -t $(SERVER_HOST) -p $(PORT)" $(MAKE) manage
+	COMMAND="runserver -h $(SERVER_HOST) -p $(SERVER_PORT)" $(MAKE) manage
 
 shell:
 	COMMAND=shell $(MAKE) manage

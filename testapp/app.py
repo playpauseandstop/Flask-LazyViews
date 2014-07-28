@@ -40,6 +40,17 @@ def init_app():
     views.add_static('/favicon.ico',
                      defaults={'filename': 'img/favicon.ico'},
                      endpoint='favicon')
+    views.add_template('/template',
+                       'template.html',
+                       context={'text': 'Test Text'},
+                       endpoint='template')
+    views.add_template('/template/callable-context',
+                       'template.html',
+                       context=lambda: {'text': 'Callable Test Text'},
+                       endpoint='template_callable_context')
+    views.add_template('/template/no-context',
+                       'template.html',
+                       endpoint='template_no_context')
 
     # Register test blueprint
     app.register_blueprint(test_blueprint, url_prefix='/test')
