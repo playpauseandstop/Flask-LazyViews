@@ -184,6 +184,18 @@ static files outside ``static_url``, e.g.::
     views = LazyViews(app)
     views.add_static('/favicon.ico', defaults={'filename': 'img/favicon.ico'})
 
+add_template
+------------
+
+Add rendering template for given URL rule. It userful when you want render some
+templates without additional logic in Flask, e.g.::
+
+    views = LazyViews(app)
+    views.add_template('/',
+                       'index.html',
+                       context={'var': 'Value'},
+                       endpoint='index')
+
 Bugs, feature requests?
 =======================
 
@@ -193,6 +205,11 @@ the project's `GitHub issues
 
 ChangeLog
 =========
+
+0.5.2 (Unreleased)
+------------------
+
++ Added ability register template views as ``add_template`` method.
 
 0.5.1 (Jan 31, 2014)
 --------------------

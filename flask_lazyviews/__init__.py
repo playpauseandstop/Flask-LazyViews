@@ -12,4 +12,4 @@ from .lazyviews import LazyViews  # noqa
 
 __author__ = 'Igor Davydenko'
 __license__ = 'BSD License'
-__version__ = '0.5.1'
+__version__ = '0.5.2-dev'
