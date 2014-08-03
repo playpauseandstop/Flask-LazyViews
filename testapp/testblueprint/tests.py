@@ -59,18 +59,22 @@ class TestBlueprint(TestCase):
 
 class TestLazyViews(unittest.TestCase):
 
-    def test_init_blueprint(self):
+    def check_blueprint(self, keep=False):
+        prefix = 'testapp.testblueprint.views'
+        init_args = () if keep else (prefix, )
+        init_kwargs = {'import_prefix': prefix} if keep else {}
+
         app = Flask('test_testapp')
         views = LazyViews(app, 'testapp.views')
         views.add('/', 'home')
 
-        views = LazyViews()
+        views = LazyViews(**init_kwargs)
         blueprint = Blueprint('test_testblueprint',
                               'testapp.testblueprint',
                               template_folder='templates')
         self.assertEqual(len(app.view_functions), 2)
 
-        views.init_blueprint(blueprint, 'testapp.testblueprint.views')
+        views.init_blueprint(blueprint, *init_args)
         views.add('/advanced', 'advanced', methods=('GET', 'POST'))
         views.add('/test', 'test')
 
@@ -81,6 +85,12 @@ class TestLazyViews(unittest.TestCase):
             client = app.test_client()
             response = client.get(url_for('test_testblueprint.test'))
             self.assertEqual(response.status_code, 200)
+
+    def test_init_blueprint(self):
+        self.check_blueprint()
+
+    def test_init_blueprint_keep_import_prefix(self):
+        self.check_blueprint(True)
 
     def test_init_blueprint_admin_error(self):
         blueprint = Blueprint('test_testblueprint',
