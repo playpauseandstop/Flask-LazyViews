@@ -48,8 +48,8 @@ class LazyView(object):
 
     def __getattribute__(self, name):
         """
-        Add documentation and repr methods to current instance from view
-        function if view function is able to import.
+        Proxify documentation attribute from original view if it could be
+        imported.
         """
         try:
             if name == '__doc__':

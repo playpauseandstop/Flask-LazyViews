@@ -38,8 +38,9 @@ class LazyViews(object):
         configure ``LazyViews`` instance somewhere outside your ``app.py`` or
         for multiple applications.
         """
+        # Keep import prefix state to have ability reuse it later
+        self.import_prefix = import_prefix
         self.instance = None
-        self.import_prefix = None
 
         if instance:
             self.init_app(instance, import_prefix)
@@ -81,12 +82,20 @@ class LazyViews(object):
 
         admin.add_view(view)
 
-    def add_error(self, code_or_exception, mixed):
+    def add_error(self, code_or_exception, mixed, app=False):
         """
         Add error handler to Flask application or blueprint.
+
+        When passing ``app=True`` tries to register global app error handler
+        for blueprint.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
-        self.instance.errorhandler(code_or_exception)(self.get_view(mixed))
+
+        app_handler = getattr(self.instance, 'app_errorhandler', None)
+        handler = self.instance.errorhandler
+        method = app_handler if app and app_handler else handler
+
+        method(code_or_exception)(self.get_view(mixed))
 
     def add_static(self, url_rule, **options):
         """
@@ -115,8 +124,7 @@ class LazyViews(object):
         """
         Prepend import prefix to import name if it earlier defined by user.
         """
-        not_empty = lambda data: filter(lambda item: item, data)
-        return '.'.join(not_empty((self.import_prefix, import_name)))
+        return '.'.join(filter(None, (self.import_prefix, import_name)))
 
     def get_view(self, mixed):
         """
@@ -143,7 +151,7 @@ class LazyViews(object):
 
             import_prefix = import_name + import_prefix
 
-        self.import_prefix = import_prefix
+        self.import_prefix = import_prefix or self.import_prefix
         self.instance = app
 
     def init_blueprint(self, blueprint, import_prefix=None):
