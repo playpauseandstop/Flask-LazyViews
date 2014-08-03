@@ -12,3 +12,4 @@ testapp/env/
 .tox/
 
 .coverage
+.python-version
