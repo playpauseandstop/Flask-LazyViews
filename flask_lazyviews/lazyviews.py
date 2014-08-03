@@ -97,6 +97,14 @@ class LazyViews(object):
 
         method(code_or_exception)(self.get_view(mixed))
 
+    def add_app_error(self, code_or_exception, mixed):
+        """
+        Add error handler to blueprint.This handler is used 
+        for all requests, event if outside of the blueprint
+        """
+        assert self.instance, 'LazyViews instance is not properly initialized.'
+        self.instance.app_errorhandler(code_or_exception)(self.get_view(mixed))
+
     def add_static(self, url_rule, **options):
         """
         Add URL rule for serving static files to Flask app or blueprint.
