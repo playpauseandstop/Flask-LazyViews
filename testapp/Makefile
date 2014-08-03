@@ -42,6 +42,7 @@ manage:
 
 pep8:
 	$(FLAKE8) --statistics ../$(PROJECT)/
+	$(FLAKE8) --exclude=$(ENV) --statistics $(APP)/
 
 server:
 	COMMAND="runserver -h $(SERVER_HOST) -p $(SERVER_PORT)" $(MAKE) manage
@@ -51,5 +52,5 @@ shell:
 
 test: clean pep8
 	$(NOSETESTS) --logging-clear-handlers $(TEST_ARGS) -w $(APP)/ \
-	--with-coverage --cover-branches --cover-package=../$(PROJECT)/ \
-	--cover-html --cover-html-dir=$(COVERAGE_DIR)
+	--with-coverage --cover-branches --cover-inclusive \
+	--cover-package=../$(PROJECT)/ --cover-html --cover-html-dir=$(COVERAGE_DIR)

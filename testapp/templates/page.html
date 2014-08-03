@@ -2,6 +2,6 @@
 {% block content %}
 
     <h2>Page #{{ page }}</h2>
-    <p>Dummy page content ;)</p>
+    <p>{% if text %}{{ text }}{% else %}Dummy page content ;){% endif %}</p>
 
 {% endblock %}

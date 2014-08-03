@@ -1,27 +1,23 @@
 import platform
 
 try:
-    from unittest2 import TestCase
+    import unittest2 as unittest
 except ImportError:
-    from unittest import TestCase
+    import unittest
 
-from random import choice, randint
-from string import ascii_letters as letters
-
-from flask import Blueprint, Flask, url_for
-from flask.ext.lazyviews import LazyViews
+from flask import Flask, url_for
+from flask_lazyviews import LazyViews
+from flask_lazyviews.utils import LazyView
 from jinja2.filters import escape
-from werkzeug.utils import ImportStringError
 
-from admin import AdminView
-from app import init_app
-from test.blueprint import init_blueprint
-from views import PageView, page as page_view
+from testapp.app import create_app
+from testapp.views import page as page_view
 
 
-class TestFlaskLazyViews(TestCase):
+strong = lambda text: '<strong>{0}</strong>'.format(escape(text))
 
-    TESTING = True
+
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.app, self._ctx = None, None
@@ -36,13 +32,6 @@ class TestFlaskLazyViews(TestCase):
         if self._ctx is not None:
             self._ctx.pop()
 
-        if self.app is not None:
-            for attr in dir(self):
-                if not attr.startswith('original_'):
-                    continue
-                name = attr.replace('original_', '')
-                self.app.config[name] = getattr(self, attr)
-
     def assert200(self, response):
         self.assertStatus(response, 200)
 
@@ -50,293 +39,202 @@ class TestFlaskLazyViews(TestCase):
         self.assertStatus(response, 404)
 
     def assertContains(self, response, text):
-        if not hasattr(response, 'decoded'):
-            response.decoded = response.data.decode(response.charset)
+        self._prepare_response(response)
         self.assertIn(text, response.decoded)
+
+    def assertNotContains(self, response, text):
+        self._prepare_response(response)
+        self.assertNotIn(text, response.decoded)
 
     def assertStatus(self, response, status_code):
         self.assertEqual(response.status_code, status_code)
 
-    def create_app(self):
-        (app, _, _) = init_app()
-
-        for attr in dir(self):
-            if not attr.isupper() or attr.startswith('_'):
-                continue
-            setattr(self, 'original_{0}'.format(attr), app.config.get(attr))
-            app.config[attr] = getattr(self, attr)
-
-        return app
-
-    def get_blueprint_name(self):
-        return 'test_{0}'.format(''.join([choice(letters) for i in range(4)]))
+    def create_app(self, **kwargs):
+        return create_app(TESTING=True, **kwargs)
 
     def url(self, *args, **kwargs):
         return url_for(*args, **kwargs)
 
-    def test_app(self):
-        page = randint(1, 9999)
+    def _prepare_response(self, response):
+        if not hasattr(response, 'decoded'):
+            response.decoded = response.data.decode(response.charset)
 
-        home_url = self.url('home')
-        page_url = self.url('flatpage', page_id=page)
-        first_page_url = self.url('flatpage', page_id=1)
-        second_page_url = self.url('flatpage_cls', page_id=2)
-        admin_url = self.url('admin.index')
-        favicon_url = self.url('favicon')
 
-        response = self.client.get(home_url)
+class TestApplication(TestCase):
+
+    def test_admin(self):
+        response = self.client.get(self.url('app_admin.index'))
         self.assert200(response)
-        self.assertContains(response, '<h1>Flask-LazyViews test project</h1>')
-        self.assertContains(response, '<a href="{0}">'.format(first_page_url))
-        self.assertContains(response, '<a href="{0}">'.format(second_page_url))
-        self.assertContains(response, '<a href="{0}">'.format(admin_url))
-        self.assertContains(response, '<a href="{0}">'.format(favicon_url))
-
-        response = self.client.get(page_url)
-        self.assert200(response)
-        self.assertContains(response, 'Page #{0:d}'.format(page))
-        self.assertContains(response, '<a href="{0}">'.format(home_url))
-
-        response = self.client.get(admin_url)
-        self.assert200(response)
-        self.assertContains(response, 'App View')
-
-        response = self.client.get(favicon_url)
-        self.assert200(response)
-
-    def test_blueprint(self):
-        home_url = self.url('home')
-        test_url = self.url('test.test')
-        advanced_url = self.url('test.advanced')
-
-        response = self.client.get(home_url)
-        self.assert200(response)
-        self.assertContains(response, '<a href="{0}">'.format(test_url))
-        self.assertContains(response, '<a href="{0}?q='.format(advanced_url))
-
-        response = self.client.get(test_url)
-        self.assert200(response)
-        self.assertContains(response, '<h2>Test page</h2>')
         self.assertContains(
             response,
-            '<a href="{0}">To advanced test page'.format(advanced_url)
+            'Custom Admin page added via <code>Flask-LazyViews</code>.'
         )
 
-        number = str(randint(1, 9999))
+    def test_complex(self):
+        check_link = lambda response, url, label: self.assertContains(
+            response, '<li><a href="{0}">{1}</a></li>'.format(url, label)
+        )
 
-        response = self.client.get('{0}?q={1}'.format(advanced_url, number))
+        response = self.client.get(self.url('home'))
         self.assert200(response)
-        self.assertContains(response, 'Advanced test page')
-        self.assertContains(response, '$REQUEST')
-        self.assertContains(response, number)
-        self.assertContains(response, 'Make POST request')
+        self.assertContains(response, 'Home page')
+        self.assertContains(response, 'Application views')
 
-        text = ''.join([choice(letters) for i in range(16)])
+        check_link(response, self.url('flatpage', page_id=1), 'Page #1')
+        check_link(response, self.url('flatpage_cls', page_id=2), 'Page #2')
+        check_link(response, self.url('dbpage'), 'Database page')
+        check_link(response, self.url('app_admin.index'), 'Custom Admin page')
+        check_link(response, self.url('favicon'), 'Favicon')
+        check_link(response, self.url('custom_error', code=403), '403 page')
+        check_link(response, '/does-not-exist.exe', '404 page')
+        check_link(response, self.url('gone'), '410 page')
+        check_link(response, self.url('server_error'), '500 page')
+        check_link(response, self.url('template'), 'Template page')
+        check_link(response,
+                   self.url('template_callable_context'),
+                   'Template page with callable context')
+        check_link(response,
+                   self.url('template_no_context'),
+                   'Template page without context')
 
-        response = self.client.post(advanced_url, data={'text': text})
-        self.assert200(response)
-        self.assertContains(response, text)
-
-    def test_custom_config_app(self):
-        views = LazyViews(self.app, import_prefix='testapp.views')
-        views.add('/default-page',
-                  'page',
-                  defaults={'page_id': 1},
-                  endpoint='default_page')
-
-        self.assertIn('default_page', self.app.view_functions)
-
-        response = self.client.get(self.url('default_page'))
-        self.assert200(response)
-        self.assertContains(response, 'Page #1')
-
-    def test_custom_config_blueprint(self):
-        name = self.get_blueprint_name()
-        blueprint = init_blueprint(name)
-
-        views = LazyViews(blueprint, import_prefix=blueprint.import_name)
-        views.add('/more-advanced',
-                  'views.advanced',
-                  endpoint='more_advanced',
-                  methods=('GET', 'POST', 'PUT'))
-
-        self.app.register_blueprint(blueprint, url_prefix='/test')
-        self.assertIn('{0}.more_advanced'.format(name),
-                      self.app.view_functions)
-
-        response = self.client.put(self.url('{0}.more_advanced'.format(name)))
-        self.assert200(response)
-        self.assertContains(response, 'Advanced test page')
-
-    def test_doc_and_repr(self):
-        view_func = self.app.view_functions['home']
-        view_repr = repr(view_func)
-
-        hex_repr = '{0:x}'.format(id(view_func.view))
-        if platform.system() == 'Windows':
-            hex_repr = hex_repr.upper()
-
-        self.assertEqual(view_func.__doc__, '\n    Home page.\n    ')
-        self.assertTrue(view_repr.startswith('<function home at 0x'))
-        self.assertTrue(view_repr.endswith('{0}>'.format(hex_repr)))
-
-    def test_error_config_app(self):
-        views = LazyViews(self.app, import_prefix='weird.path')
-        views.add('/default-page',
-                  'views.page',
-                  defaults={'page_id': 1},
-                  endpoint='default_page')
-
-        self.assertIn('default_page', self.app.view_functions)
-        self.assertRaises(ImportStringError,
+    def test_error_server_error(self):
+        self.assertRaises(AssertionError,
                           self.client.get,
-                          self.url('default_page'))
+                          self.url('server_error'))
 
-        views = LazyViews(self.app, import_prefix='testapp.views')
-        views.add('/another-default-page',
-                  'does_not_exist',
-                  endpoint='another_default_page')
+        # Dummy request to home page to avoid "Popped wrong request context."
+        # error on teardown
+        self.assert200(self.client.get(self.url('home')))
 
-        self.assertIn('another_default_page', self.app.view_functions)
-
-        self.assertRaises(ImportStringError,
-                          self.client.get,
-                          self.url('another_default_page'))
-
-    def test_error_config_blueprint(self):
-        name = self.get_blueprint_name()
-        blueprint = init_blueprint(name)
-
-        views = LazyViews(blueprint, import_prefix='weird.path')
-        views.add('/more-advanced',
-                  'views.advanced',
-                  endpoint='more_advanced')
-
-        self.app.register_blueprint(blueprint, url_prefix='/test')
-        self.assertIn('{0}.more_advanced'.format(name),
-                      self.app.view_functions)
-        self.assertRaises(ImportStringError,
-                          self.client.get,
-                          self.url('{0}.more_advanced'.format(name)))
-
-        name = self.get_blueprint_name()
-        blueprint = init_blueprint(name)
-
-        views = LazyViews(blueprint, blueprint.import_name)
-        views.add('/more-more-advanced',
-                  'views.does_not_exist',
-                  endpoint='more_more_advanced')
-
-        self.app.register_blueprint(blueprint, url_prefix='/test')
-        self.assertIn('{0}.more_more_advanced'.format(name),
-                      self.app.view_functions)
-        self.assertRaises(ImportStringError,
-                          self.client.get,
-                          self.url('{0}.more_more_advanced'.format(name)))
-
-    def test_error_handling(self):
-        self.original_DEBUG = self.app.debug
-        self.app.debug = False
-        client = self.app.test_client()
-
-        response = client.get('/does-not-exist.exe')
+    def test_error_handled(self):
+        response = self.client.get('/does-not-exist.exe')
         self.assert404(response)
-        self.assertContains(response, '<h2>Error 404: Page Not Found</h2>')
+        self.assertContains(response, 'Error 404: Page Not Found')
+        self.assertNotContains(
+            response,
+            'This error page generated from Blueprint.'
+        )
 
-    def test_init_app(self):
-        self.app.blueprints.pop('app_admin')
+    def test_error_handled_from_blueprint(self):
+        response = self.client.get(self.url('gone'))
+        self.assertStatus(response, 410)
+        self.assertContains(response, 'Error 410: Gone')
+        self.assertContains(
+            response, 'This error page generated from Blueprint.'
+        )
 
-        views = LazyViews()
-        self.assertRaises(AssertionError,
-                          views.add,
-                          '/default-page',
-                          'page',
-                          defaults={'page_id': 1},
-                          endpoint='default_page')
-        self.assertRaises(AssertionError,
-                          views.add_admin,
-                          AdminView(name='Admin View'))
-        self.assertRaises(AssertionError,
-                          views.add_error,
-                          404,
-                          'error')
-        self.assertRaises(AssertionError,
-                          views.add_static,
-                          '/more-static/<path:filename>',
-                          endpoint='more_static')
+    def test_error_not_handled(self):
+        response = self.client.get(self.url('custom_error', code=403))
+        self.assertStatus(response, 403)
+        self.assertNotContains(response, 'Error 403: Forbidden')
 
-        views.init_app(self.app)
-        views.add('/default-page',
-                  page_view,
-                  defaults={'page_id': 1},
-                  endpoint='default_page')
-        views.add('/advanced-page',
-                  PageView.as_view('page'),
-                  defaults={'page_id': 2},
-                  endpoint='advanced_page')
-        views.add_admin(AdminView(name='Admin View'))
-        views.add_static('/more-static/<path:filename>',
-                         endpoint='more_static')
-
-        self.assertIn('advanced_page', self.app.view_functions)
-        self.assertIn('default_page', self.app.view_functions)
-        self.assertIn('more_static', self.app.view_functions)
-
-        response = self.client.get(self.url('default_page'))
+    def test_static(self):
+        response = self.client.get(self.url('favicon'))
         self.assert200(response)
-        self.assertContains(response, 'Page #1')
+        self.assertEqual(response.mimetype, 'image/x-icon')
 
-        response = self.client.get(self.url('advanced_page'))
-        self.assert200(response)
-        self.assertContains(response, 'Page #2')
-
-        response = self.client.get(self.url('admin.index'))
-        self.assert200(response)
-        self.assertContains(response, 'Admin View')
-
-        favicon_url = self.url('more_static', filename='img/favicon.ico')
-        response = self.client.get(favicon_url)
-        self.assert200(response)
-
-        strong = lambda text: '<strong>{0}</strong>'.format(escape(text))
+    def test_template(self):
         response = self.client.get(self.url('template'))
         self.assert200(response)
         self.assertContains(response, strong("'Test Text'"))
 
+    def test_template_callable_context(self):
         response = self.client.get(self.url('template_callable_context'))
         self.assert200(response)
         self.assertContains(response, strong("'Callable Test Text'"))
 
+    def test_template_no_context(self):
         response = self.client.get(self.url('template_no_context'))
         self.assert200(response)
         self.assertContains(response, strong('Undefined'))
 
-    def test_init_blueprint(self):
-        views = LazyViews()
-        self.assertRaises(AssertionError,
-                          views.add,
-                          '/more-advanced',
-                          'views.advanced',
-                          endpoint='more_advanced',
-                          methods=('GET', 'POST', 'PUT'))
-
-        name = self.get_blueprint_name()
-        blueprint = init_blueprint(name)
-
-        views.init_blueprint(blueprint, import_prefix=blueprint.import_name)
-        views.add('/more-advanced',
-                  'views.advanced',
-                  endpoint='more_advanced',
-                  methods=('GET', 'POST', 'PUT'))
-        self.assertRaises(ValueError,
-                          views.add_admin,
-                          AdminView(name='Admin View'))
-
-        # Don't forget to re-register blueprint
-        self.app.register_blueprint(blueprint, url_prefix='/test')
-        self.assertIn('{0}.more_advanced'.format(name),
-                      self.app.view_functions)
-
-        response = self.client.put(self.url('{0}.more_advanced'.format(name)))
+    def test_view_class(self):
+        response = self.client.get(self.url('flatpage_cls', page_id=2))
         self.assert200(response)
-        self.assertContains(response, 'Advanced test page')
+        self.assertContains(response, 'Page #2')
+        self.assertContains(response, 'Dummy page content ;)')
+
+    def test_view_function(self):
+        response = self.client.get(self.url('flatpage', page_id=1))
+        self.assert200(response)
+        self.assertContains(response, 'Page #1')
+        self.assertContains(response, 'Dummy page content ;)')
+
+    def test_view_function_and_database(self):
+        response = self.client.get(self.url('dbpage'))
+        self.assert200(response)
+        self.assertContains(response, 'Page #')
+        self.assertContains(response, 'Dummy content.')
+
+
+class TestLazyView(unittest.TestCase):
+
+    def test_doc_and_repr(self):
+        lazy = LazyView('testapp.views.home')
+        lazy_repr = repr(lazy)
+
+        hex_repr = '{0:x}'.format(id(lazy.view))
+        if platform.system() == 'Windows':
+            hex_repr = hex_repr.upper()
+
+        self.assertEqual(lazy.__doc__, '\n    Home page.\n    ')
+        self.assertTrue(lazy_repr.startswith('<function home at 0x'))
+        self.assertTrue(lazy_repr.endswith('{0}>'.format(hex_repr)))
+
+    def test_eq(self):
+        lazy = LazyView('testapp.views.page')
+        view = LazyView('testapp.views.page')
+        self.assertNotEqual(id(lazy), id(view))
+        self.assertEqual(lazy, view)
+        self.assertNotEqual(lazy, page_view)
+
+    def test_wrong_view(self):
+        lazy = LazyView('testapp.views.page')
+        wrong = LazyView('wrong.views.page')
+
+        self.assertNotEqual(lazy, wrong)
+        self.assertEqual(
+            wrong.__doc__,
+            '\n    Import view function only when necessary.\n    '
+        )
+        self.assertTrue(repr(wrong).startswith(
+            '<flask_lazyviews.utils.LazyView object at 0x'
+        ))
+
+
+class TestLazyViews(unittest.TestCase):
+
+    def test_init_app(self):
+        app = Flask('test_testapp')
+        app.config.update({'TESTING': True})
+        self.assertEqual(len(app.view_functions), 1)
+
+        views = LazyViews(app)
+        views.add_template('/', 'home.html', endpoint='home')
+        views.add('/page/<int:page_id>', 'views.page')
+        self.assertEqual(len(app.view_functions), 3)
+
+        self.assertRaises(ValueError,
+                          views.add_admin, 'admin.AdminView')
+
+        with app.test_request_context():
+            response = app.test_client().get(url_for('page', page_id=1))
+            self.assertEqual(response.status_code, 200)
+
+    def test_init_app_errors(self):
+        views = LazyViews()
+
+        self.assertRaises(AssertionError,
+                          views.add, '/page/<int:page_id>', 'page')
+        self.assertRaises(AssertionError,
+                          views.add_admin, 'admin.AdminView')
+        self.assertRaises(AssertionError,
+                          views.add_error, 403, 'error')
+        self.assertRaises(AssertionError,
+                          views.add_static,
+                          '/favicon.ico',
+                          defaults={'filename': 'img/favicon.ico'},
+                          endpoint='favicon')
+        self.assertRaises(AssertionError,
+                          views.add_template,
+                          '/template', 'template.html', endpoint='template')

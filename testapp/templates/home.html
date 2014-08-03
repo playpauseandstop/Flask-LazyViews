@@ -1,22 +1,33 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h2>Home page</h2>
+  <h2>Home page</h2>
+  <hr>
 
-    <ul>
-        <li><a href="{{ url_for("flatpage", page_id=1) }}">Page #1</a></li>
-        <li><a href="{{ url_for("flatpage_cls", page_id=2) }}">Page #2</a></li>
-        <li><a href="{{ url_for("database_page") }}">Database Page</a></li>
-        <li><a href="{{ url_for("admin.index") }}">Admin page</a></li>
-        <li><a href="{{ url_for("favicon") }}">Favicon</a></li>
-        <li><a href="/does_not_exists.exe">404 page</a></li>
-        <li><a href="{{ url_for("server_error") }}">500 page</a></li>
-        <li><a href="{{ url_for("test.test") }}">Test page</a></li>
-        <li><a href="{{ url_for("test.advanced") }}?q={{ query }}">Advanced test page</a></li>
-        <li><a href="{{ url_for("template") }}">Template page</a></li>
-        <li><a href="{{ url_for("template_callable_context") }}">Template page with callable context</a></li>
-        <li><a href="{{ url_for("template_no_context") }}">Template page without context</a></li>
-    </ul>
+  <h3>Application views</h3>
+  <ul>
+    <li><a href="{{ url_for("flatpage", page_id=1) }}">Page #1</a></li>
+    <li><a href="{{ url_for("flatpage_cls", page_id=2) }}">Page #2</a></li>
+    <li><a href="{{ url_for("dbpage") }}">Database page</a></li>
+    <li><a href="{{ url_for("app_admin.index") }}">Custom Admin page</a></li>
+    <li><a href="{{ url_for("favicon") }}">Favicon</a></li>
+    <li><a href="{{ url_for("custom_error", code=403) }}">403 page</a></li>
+    <li><a href="/does-not-exist.exe">404 page</a></li>
+    <li><a href="{{ url_for("gone") }}">410 page</a></li>
+    <li><a href="{{ url_for("server_error") }}">500 page</a></li>
+    <li><a href="{{ url_for("template") }}">Template page</a></li>
+    <li><a href="{{ url_for("template_callable_context") }}">Template page with callable context</a></li>
+    <li><a href="{{ url_for("template_no_context") }}">Template page without context</a></li>
+  </ul>
+  <hr>
+
+  <h3>Blueprint views</h3>
+  <ul>
+    <li><a href="{{ url_for("testblueprint.test") }}">Test page</a></li>
+    <li><a href="{{ url_for("testblueprint.advanced") }}?q={{ query }}">Advanced test page</a></li>
+    <li><a href="{{ url_for("testblueprint.custom_error", code=403) }}">403 page</a></li>
+    <li><a href="{{ url_for("testblueprint.gone") }}">410 page</a></li>
+  </ul>
 
 {% endblock %}
 {% block backlink %}{% endblock %}
