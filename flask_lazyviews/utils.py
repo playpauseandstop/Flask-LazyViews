@@ -39,12 +39,18 @@ class LazyView(object):
 
     def __eq__(self, other):
         """
-        Check that two lazy view instances has equal view or not.
+        Check that two lazy view instances have equal views or not.
         """
         try:
-            return self.view == other.view
+            return self.import_name == other.import_name
         except (AttributeError, ImportError):
             return False
+
+    def __ne__(self, other):
+        """
+        Check that two lazy view instance have not equals views.
+        """
+        return not self.__eq__(other)
 
     def __getattribute__(self, name):
         """
