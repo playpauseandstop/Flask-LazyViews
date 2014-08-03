@@ -175,6 +175,12 @@ Add error handler to Flask application or blueprint, e.g.::
     views.add_error(404, 'error')
     views.add_error(500, server_error_view)
 
+In case you need to register global app error handler from blueprint, just to
+pass ``app=True`` to ``add_error`` method, e.g.::
+
+    views = LazyViews(blueprint, 'views')
+    views.add_error(403, 'error', app=True)
+
 add_static
 ----------
 
@@ -187,8 +193,8 @@ static files outside ``static_url``, e.g.::
 add_template
 ------------
 
-Add rendering template for given URL rule. It userful when you want render some
-templates without additional logic in Flask, e.g.::
+Render Jinja2 templates for given URL rule. It useful when you want render
+some templates without additional logic in Flask, e.g.::
 
     views = LazyViews(app)
     views.add_template('/',
@@ -209,7 +215,10 @@ ChangeLog
 0.6 (Unreleased)
 ----------------
 
-+ Added ability register template views via ``add_template`` method
++ Render Jinja2 templates for given URL rule via ``add_template`` method
++ Register global app error handler from Blueprint by passing ``app=True`` to
+  ``add_error`` method
++ Keep ``import_prefix`` in ``LazyViews`` instance
 
 0.5.1 (Jan 31, 2014)
 --------------------
