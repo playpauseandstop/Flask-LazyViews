@@ -215,24 +215,25 @@ ChangeLog
 0.6 (Unreleased)
 ----------------
 
-+ Render Jinja2 templates for given URL rule via ``add_template`` method
++ Render Jinja2 templates for given URL rule via ``add_template`` method.
 + Register global app error handler from Blueprint by passing ``app=True`` to
-  ``add_error`` method
-+ Keep ``import_prefix`` in ``LazyViews`` instance
+  ``add_error`` method.
++ Keep ``import_prefix`` in ``LazyViews`` instance.
++ Fixes #4. Fix registering multiple routes to same lazy view.
 
 0.5.1 (Jan 31, 2014)
 --------------------
 
 + Fixes #3. Make ``LazyView`` proxy class lazy again. Fix circullar imports and
-  working outside application context
+  working outside application context.
 
 0.5 (Dec 27, 2013)
 ------------------
 
-+ Python 3 support (only for Flask 0.10+)
-+ Flask 0.10+ support
++ Python 3 support (only for Flask 0.10+).
++ Flask 0.10+ support.
 + Fixes #2. Access view function documentation and repr while loading views via
-  strings
+  strings.
 
 0.4 (Oct 28, 2012)
 ------------------
