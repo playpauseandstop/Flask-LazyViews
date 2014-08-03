@@ -1,4 +1,4 @@
-from app import app
+from testapp.app import app
 
 
 db = app.extensions['sqlalchemy'].db

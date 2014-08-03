@@ -5,7 +5,7 @@ from flask import abort, render_template, request
 from flask.views import MethodView
 from sqlalchemy.exc import OperationalError
 
-from models import Page
+from testapp.models import Page
 
 
 class PageView(MethodView):

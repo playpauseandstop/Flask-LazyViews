@@ -17,6 +17,15 @@ from testapp.views import page as page_view
 strong = lambda text: '<strong>{0}</strong>'.format(escape(text))
 
 
+def create_test_app(name=None, **options):
+    options.update({'DEBUG': True, 'TESTING': True})
+
+    app = Flask(name or 'testapp')
+    app.config.update(options)
+
+    return app
+
+
 class TestCase(unittest.TestCase):
 
     def setUp(self):
@@ -97,14 +106,9 @@ class TestApplication(TestCase):
                    self.url('template_no_context'),
                    'Template page without context')
 
-    def test_error_server_error(self):
-        self.assertRaises(AssertionError,
-                          self.client.get,
-                          self.url('server_error'))
-
-        # Dummy request to home page to avoid "Popped wrong request context."
-        # error on teardown
-        self.assert200(self.client.get(self.url('home')))
+    def test_error_default(self):
+        response = self.client.get('/error/default')
+        self.assertStatus(response, 400)
 
     def test_error_handled(self):
         response = self.client.get('/does-not-exist.exe')
@@ -127,6 +131,15 @@ class TestApplication(TestCase):
         response = self.client.get(self.url('custom_error', code=403))
         self.assertStatus(response, 403)
         self.assertNotContains(response, 'Error 403: Forbidden')
+
+    def test_error_server_error(self):
+        self.assertRaises(AssertionError,
+                          self.client.get,
+                          self.url('server_error'))
+
+        # Dummy request to home page to avoid "Popped wrong request context."
+        # error on teardown
+        self.assert200(self.client.get(self.url('home')))
 
     def test_static(self):
         response = self.client.get(self.url('favicon'))
@@ -205,11 +218,10 @@ class TestLazyView(unittest.TestCase):
 class TestLazyViews(unittest.TestCase):
 
     def test_init_app(self):
-        app = Flask('test_testapp')
-        app.config.update({'TESTING': True})
+        app = create_test_app()
         self.assertEqual(len(app.view_functions), 1)
 
-        views = LazyViews(app)
+        views = LazyViews(app, 'testapp')
         views.add_template('/', 'home.html', endpoint='home')
         views.add('/page/<int:page_id>', 'views.page')
         self.assertEqual(len(app.view_functions), 3)

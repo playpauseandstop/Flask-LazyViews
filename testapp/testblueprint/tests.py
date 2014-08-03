@@ -1,7 +1,7 @@
-from flask import Blueprint, Flask, url_for
+from flask import Blueprint, url_for
 from flask_lazyviews import LazyViews
 
-from testapp.tests import TestCase, unittest
+from testapp.tests import TestCase, create_test_app, unittest
 
 
 TEST_QUERY = 'test-query'
@@ -52,7 +52,7 @@ class TestBlueprint(TestCase):
 
     def test_view_post(self):
         url = self.url('testblueprint.advanced')
-        response = self.client.post(url, {'q': TEST_QUERY})
+        response = self.client.post(url, data={'q': TEST_QUERY})
         self.assert200(response)
         self.assertContains(response, TEST_QUERY)
 
@@ -64,7 +64,7 @@ class TestLazyViews(unittest.TestCase):
         init_args = () if keep else (prefix, )
         init_kwargs = {'import_prefix': prefix} if keep else {}
 
-        app = Flask('test_testapp')
+        app = create_test_app()
         views = LazyViews(app, 'testapp.views')
         views.add('/', 'home')
 

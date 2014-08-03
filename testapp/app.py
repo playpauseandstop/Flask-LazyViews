@@ -3,7 +3,7 @@ from flask.ext.admin import Admin
 from flask.ext.lazyviews import LazyViews
 from flask.ext.sqlalchemy import SQLAlchemy
 
-from testblueprint.blueprint import create_blueprint
+from testapp.testblueprint.blueprint import create_blueprint
 
 
 def create_app(name=None, **options):
@@ -12,20 +12,19 @@ def create_app(name=None, **options):
     """
     # Init Flask application and configure it
     app = Flask(name or __name__)
-    app.config.update({
-        'DEBUG': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite://',
-    })
+    app.config.update({'DEBUG': True,
+                       'SQLALCHEMY_DATABASE_URI': 'sqlite://'})
     app.config.update(options)
 
     # Setup necessary extensions
     Admin(app), SQLAlchemy(app)
 
     # Add lazy views to application
-    views = LazyViews(app)
+    views = LazyViews(app, 'testapp')
     views.add('/', 'views.home')
     views.add('/db', 'views.database_page', endpoint='dbpage')
     views.add('/error', 'views.server_error')
+    views.add('/error/default', 'views.custom_error', defaults={'code': 400})
     views.add('/error/<int:code>', 'views.custom_error')
     views.add('/gone',
               'views.custom_error',
