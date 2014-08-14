@@ -45,9 +45,10 @@ def create_app(name=None, **options):
     views.add_error(500, 'views.error')
 
     # Custom static file serving
-    views.add_static('/favicon.ico',
+    views.add_static('/favicon.ico', 'img/favicon.ico', endpoint='favicon')
+    views.add_static('/old-favicon.ico',
                      defaults={'filename': 'img/favicon.ico'},
-                     endpoint='favicon')
+                     endpoint='old_favicon')
 
     # Render templates with dict/callable context or without any context
     views.add_template('/template',

@@ -94,6 +94,7 @@ class TestApplication(TestCase):
         check_link(response, self.url('dbpage'), 'Database page')
         check_link(response, self.url('app_admin.index'), 'Custom Admin page')
         check_link(response, self.url('favicon'), 'Favicon')
+        check_link(response, self.url('old_favicon'), 'Old Favicon')
         check_link(response, self.url('custom_error', code=403), '403 page')
         check_link(response, '/does-not-exist.exe', '404 page')
         check_link(response, self.url('gone'), '410 page')

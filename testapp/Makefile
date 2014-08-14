@@ -34,8 +34,8 @@ distclean: clean
 	rm -rf ../.tox/ ../build/ ../dist/ ../*.egg*/ $(ENV)/
 	rm -rf ../MANIFEST .coverage
 
-list_updates:
-	$(PIP) list -lo
+docs:
+	. $(ENV)/bin/activate && make -C ../docs/ html
 
 manage:
 	$(PYTHON) ./manage.py $(COMMAND)
