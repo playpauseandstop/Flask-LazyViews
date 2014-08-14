@@ -12,9 +12,9 @@ Registers URL routes for `Flask <http://flask.pocoo.org/>`_ application or
 blueprint in lazy way. Ships with additional support of registering admin
 views, error handlers, custom static files and rendering Jinja2 templates.
 
-* **Based on original `snippet
+* Based on original `snippet
   <http://flask.pocoo.org/docs/patterns/lazyloading/>`_ from Flask
-  documentation**
+  documentation
 * Works on Python 2.6, 2.7 and 3.3+
 * BSD licensed
 * Latest documentation `on Read the Docs
