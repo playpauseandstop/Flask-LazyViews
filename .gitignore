@@ -8,6 +8,7 @@ MANIFEST
 
 build/
 dist/
+docs/_build/
 testapp/env/
 .tox/
 
