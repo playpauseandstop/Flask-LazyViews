@@ -39,7 +39,7 @@ class LazyView(object):
 
     def __eq__(self, other):
         """
-        Check that two lazy view instances have equal views or not.
+        Check that two lazy view instances have equal import names.
         """
         try:
             return self.import_name == other.import_name
@@ -48,7 +48,7 @@ class LazyView(object):
 
     def __ne__(self, other):
         """
-        Check that two lazy view instance have not equals views.
+        Check that two lazy view instances have not equal import names.
         """
         return not self.__eq__(other)
 
@@ -76,7 +76,7 @@ class LazyView(object):
     @cached_property
     def view(self):
         """
-        Import view and cache it to current cls.
+        Import view from string and cache it to current class instance.
         """
         imported = import_string(self.import_name)
 

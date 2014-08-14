@@ -30,13 +30,13 @@ class LazyViews(object):
 
     def __init__(self, instance=None, import_prefix=None):
         """
-        Initialize ``LazyViews`` instance.
+        Initialize :class:`LazyViews` instance.
 
         Basically it requires ``app`` or ``blueprint`` instance as first
         argument, but you could leave it empty and initialize it later with
-        manually call ``init_app`` method. It could be helpful, if you want to
-        configure ``LazyViews`` instance somewhere outside your ``app.py`` or
-        for multiple applications.
+        manually call :meth:`init_app` method. It could be helpful, if you want
+        to configure :class:`LazyViews` instance somewhere outside your
+        ``app.py`` or for multiple applications.
         """
         # Keep import prefix state to have ability reuse it later
         self.import_prefix = import_prefix
@@ -51,7 +51,7 @@ class LazyViews(object):
 
         ``mixed`` could be a real callable function, or a string Python path
         to callable view function. If ``mixed`` is a string, it would be
-        wrapped with ``LazyView`` class.
+        wrapped into :class:`~flask_lazyviews.utils.LazyView` instance.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
         options['view_func'] = self.get_view(mixed)
@@ -59,8 +59,11 @@ class LazyViews(object):
 
     def add_admin(self, mixed, *args, **kwargs):
         """
-        Add admin view if "Flask-Admin" extension added to application. This
-        method only works for Flask applications, not blueprints.
+        Add admin view if `Flask-Admin <http://flask-admin.readthedocs.org/>`_
+        extension added to application.
+
+        .. important:: This method only works for Flask applications, not
+           blueprints.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
 
@@ -97,11 +100,13 @@ class LazyViews(object):
 
         method(code_or_exception)(self.get_view(mixed))
 
-    def add_static(self, url_rule, **options):
+    def add_static(self, url_rule, filename=None, **options):
         """
         Add URL rule for serving static files to Flask app or blueprint.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
+        if filename:
+            options.setdefault('defaults', {}).update({'filename': filename})
         self.add(url_rule, self.instance.send_static_file, **options)
 
     def add_template(self, url_rule, template_name, **options):
@@ -109,7 +114,7 @@ class LazyViews(object):
         Render template name with context for given URL rule.
 
         Context should be a plain dict or callable. If callable its result
-        would be passed to ``render_template`` function.
+        would be passed to :func:`flask.render_template` function.
         """
         assert self.instance, 'LazyViews instance is not properly initialized.'
 
@@ -129,7 +134,7 @@ class LazyViews(object):
     def get_view(self, mixed):
         """
         If ``mixed`` value is callable it's our view, else wrap it with
-        ``LazyView`` instance.
+        :class:`flask_lazyviews.utils.LazyView` instance.
         """
         if callable(mixed) or not isinstance(mixed, string_types):
             return mixed
@@ -137,7 +142,7 @@ class LazyViews(object):
 
     def init_app(self, app, import_prefix=None):
         """
-        Configure ``LazyViews`` instance, store ``app`` or ``blueprint``
+        Configure :class:`LazyViews` instance, store ``app`` or ``blueprint``
         instance and import prefix if any.
         """
         if import_prefix and import_prefix.startswith('.'):
