@@ -277,7 +277,7 @@ Changelog
 =========
 
 0.6 (Aug 14, 2014)
-----------------
+------------------
 
 + Render Jinja2 templates for given URL rule via
   :meth:`~.LazyViews.add_template` method.
