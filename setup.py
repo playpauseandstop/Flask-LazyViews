@@ -17,21 +17,21 @@ VERSION = re.findall("__version__ = '([^']+)'", INIT_PY)[0]
 setup(
     name='Flask-LazyViews',
     version=VERSION,
-    description='Registering url routes for Flask app and blueprints in lazy '
-                'way.',
+    description='Registers URL routes for Flask application or blueprint in '
+                'lazy way.',
     long_description=README,
     author='Igor Davydenko',
     author_email='playpauseandstop@gmail.com',
     url='https://github.com/playpauseandstop/Flask-LazyViews',
     install_requires=[
-        'Flask',
+        'Flask>=0.8',
     ],
     packages=[
         'flask_lazyviews',
     ],
     platforms='any',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Web Environment',
         'Operating System :: OS Independent',
         'Topic :: Utilities',
@@ -40,6 +40,7 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
         'Topic :: Software Development :: Libraries :: Python Modules',
