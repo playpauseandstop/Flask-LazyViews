@@ -4,13 +4,15 @@
 *.egg
 *.egg-info
 
-MANIFEST
-
 build/
 dist/
 docs/_build/
 testapp/env/
+
+__pycache__/
 .tox/
+
+MANIFEST
 
 .coverage
 .python-version
