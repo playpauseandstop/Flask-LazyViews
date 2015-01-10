@@ -276,8 +276,8 @@ API
 Changelog
 =========
 
-0.6 (Aug 14, 2014)
-------------------
+0.6 (2014-08-14)
+----------------
 
 + Render Jinja2 templates for given URL rule via
   :meth:`~.LazyViews.add_template` method.
@@ -289,35 +289,35 @@ Changelog
 + Fixes #4. Fix registering multiple routes to same lazy view.
 + Move documentation from README to Read the Docs
 
-0.5.1 (Jan 31, 2014)
---------------------
+0.5.1 (2014-01-31)
+------------------
 
 + Fixes #3. Make :class:`~.LazyView` proxy class lazy again. Fix circullar
   imports and working outside application context.
 
-0.5 (Dec 27, 2013)
-------------------
+0.5 (2013-12-27)
+----------------
 
 + Python 3 support (only for Flask 0.10+).
 + Flask 0.10+ support.
 + Fixes #2. Access view function documentation and repr while loading views via
   strings.
 
-0.4 (Oct 28, 2012)
-------------------
+0.4 (2012-10-28)
+----------------
 
 + Add support of adding admin views to Flask applications via
   :meth:`~.LazyViews.add_admin` method.
 + Configure Travis CI support.
 
-0.3 (Oct 4, 2012)
------------------
+0.3 (2012-10-04)
+----------------
 
 + Implement :meth:`~.LazyViews.add_error` shortcut method for adding custom
   error handling for Flask application or blueprint.
 
-0.2 (Sep 17, 2012)
-------------------
+0.2 (2012-09-17)
+----------------
 
 + Implement :meth:`~.LazyViews.init_app` and :meth:`~.LazyViews.init_blueprint`
   methods for configuring :class:`~.LazyViews` instance outside main
@@ -327,7 +327,7 @@ Changelog
 + Add ability to register real view functions with :class:`~.LazyViews`
   instance.
 
-0.1 (Apr 3, 2012)
------------------
+0.1 (2012-04-03)
+----------------
 
 * Initial release.
