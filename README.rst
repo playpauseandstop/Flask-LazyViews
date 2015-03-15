@@ -2,11 +2,25 @@
 Flask-LazyViews
 ===============
 
-.. image:: https://secure.travis-ci.org/playpauseandstop/Flask-LazyViews.png?branch=master
+.. image:: https://travis-ci.org/playpauseandstop/Flask-LazyViews.png?branch=master&style=flat
     :target: https://travis-ci.org/playpauseandstop/Flask-LazyViews
+    :alt: Travis CI
 
-.. image:: https://pypip.in/v/Flask-LazyViews/badge.png
-    :target: https://pypi.python.org/pypi/Flask-LazyViews
+.. image:: https://pypip.in/version/Flask-LazyViews/badge.svg?style=flat
+    :target: https://pypi.python.org/pypi/Flask-LazyViews/
+    :alt: Latest Version
+
+.. image:: https://pypip.in/py_versions/Flask-LazyViews/badge.svg?style=flat
+    :target: https://pypi.python.org/pypi/Flask-LazyViews/
+    :alt: Python versions
+
+.. image:: https://pypip.in/license/Flask-LazyViews/badge.svg?style=flat
+    :target: https://github.com/playpauseandstop/Flask-LazyViews/blob/master/LICENSE
+    :alt: BSD License
+
+.. image:: https://readthedocs.org/projects/flask-lazyviews/badge/?version=latest
+    :target: http://flask-lazyviews.readthedocs.org/en/latest/
+    :alt: Documentation
 
 Registers URL routes for `Flask <http://flask.pocoo.org/>`_ application or
 blueprint in lazy way. Ships with additional support of registering admin
