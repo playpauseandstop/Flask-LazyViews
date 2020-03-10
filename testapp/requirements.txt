@@ -1,5 +1,5 @@
 Flask==0.10.1
-Flask-Admin==1.0.8
+Flask-Admin==1.5.3
 Flask-SQLAlchemy==1.0
 Flask-Script==2.0.5
 Jinja2==2.10.1
