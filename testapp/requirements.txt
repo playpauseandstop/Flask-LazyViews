@@ -4,7 +4,7 @@ Flask-SQLAlchemy==1.0
 Flask-Script==2.0.5
 Jinja2==2.10.1
 MarkupSafe==0.23
-Pygments==2.6.1
+Pygments==2.7.4
 SQLAlchemy==0.9.7
 Sphinx==1.2.2
 WTForms==2.0.1
